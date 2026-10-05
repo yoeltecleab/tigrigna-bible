@@ -1,0 +1,164 @@
+[
+    {
+        "title": "ወንጌል ማቴዎስ",
+        "ChaptersNum": "28",
+        "id": "MATIEWOS",
+        "engname": "Matthew"
+    },
+    {
+        "title": "ወንጌል ማርቆስ",
+        "ChaptersNum": "16",
+        "id": "MARK",
+        "engname": "Mark"
+    },
+    {
+        "title": "ወንጌል ሉቃስ",
+        "ChaptersNum": "24",
+        "id": "LUKAS",
+        "engname": "Luke"
+    },
+    {
+        "title": "ወንጌል ዮሓንስ",
+        "ChaptersNum": "21",
+        "id": "JONE",
+        "engname": "John"
+    },
+    {
+        "title": "ግብሪ ሓዋርያት",
+        "ChaptersNum": "28",
+        "id": "ACT",
+        "engname": "Acts"
+    },
+    {
+        "title": "ሮማ",
+        "ChaptersNum": "16",
+        "id": "ROMA",
+        "engname": "Romans"
+    },
+    {
+        "title": "1ይ ቆሮንቶስ",
+        "ChaptersNum": "16",
+        "id": "1CHORONTOS",
+        "engname": "1 Corinthians"
+    },
+    {
+        "title": "2ይ ቆሮንቶስ",
+        "ChaptersNum": "13",
+        "id": "2CHORONTOS",
+        "engname": "2 corinthians"
+    },
+    {
+        "title": "ገላትያ",
+        "ChaptersNum": "6",
+        "id": "GELATYA",
+        "engname": "Galatians"
+    },
+    {
+        "title": "ኤፌሶን",
+        "ChaptersNum": "6",
+        "id": "EFIESON",
+        "engname": "Ephesians"
+    },
+    {
+        "title": "ፊሊጵስዮስ",
+        "ChaptersNum": "4",
+        "id": "FLIPSYOS",
+        "engname": "Philippians"
+    },
+    {
+        "title": "ቈላስይስ",
+        "ChaptersNum": "4",
+        "id": "COLASIYAS",
+        "engname": "Colossians"
+    },
+    {
+        "title": "1ይ ተሰሎንቄ",
+        "ChaptersNum": "5",
+        "id": "1TESELONQIE",
+        "engname": "1 Thessalonians"
+    },
+    {
+        "title": "2ይ ተሰሎንቄ",
+        "ChaptersNum": "3",
+        "id": "2TESELONQIE",
+        "engname": "2 Thessalonians"
+    },
+    {
+        "title": "1ይ ጢሞቴዎስ",
+        "ChaptersNum": "6",
+        "id": "1TIMOTI",
+        "engname": "1 Timothy"
+    },
+    {
+        "title": "2ይ ጢሞቴዎስ",
+        "ChaptersNum": "4",
+        "id": "2TIMOTI",
+        "engname": "2 Timothy"
+    },
+    {
+        "title": "ቲቶ",
+        "ChaptersNum": "3",
+        "id": "TITO",
+        "engname": "Titus"
+    },
+    {
+        "title": "ፊልሞና",
+        "ChaptersNum": "1",
+        "id": "FILMONA",
+        "engname": "Philemon"
+    },
+    {
+        "title": "ዕብራውያን",
+        "ChaptersNum": "13",
+        "id": "OBRAWIAN",
+        "engname": "Hebrews"
+    },
+    {
+        "title": "መልእኽቲ ያዕቆብ",
+        "ChaptersNum": "5",
+        "id": "JACOB",
+        "engname": "james"
+    },
+    {
+        "title": "1ይ መልእኽቲ ጴጥሮስ",
+        "ChaptersNum": "5",
+        "id": "1PIETER",
+        "engname": "1 Peter"
+    },
+    {
+        "title": "2ይ መልእኽቲ ጴጥሮስ",
+        "ChaptersNum": "3",
+        "id": "2PIETER",
+        "engname": "2 Peter"
+    },
+    {
+        "title": "1ይ መልእኽቲ ዮሓንስ",
+        "ChaptersNum": "5",
+        "id": "1MJONE",
+        "engname": "1 John"
+    },
+    {
+        "title": "2ይ መልእኽቲ ዮሓንስ",
+        "ChaptersNum": "1",
+        "id": "2MJONE",
+        "engname": "2 John"
+    },
+    {
+        "title": "3ይ መልእኽቲ ዮሓንስ",
+        "ChaptersNum": "1",
+        "id": "3MJONE",
+        "engname": "3 John"
+    },
+    {
+        "title": "መልእኽቲ ይሁዳ",
+        "ChaptersNum": "1",
+        "id": "YHUDA",
+        "engname": "Jude"
+    },
+    {
+        "title": "ራእይ ዮሓንስ",
+        "ChaptersNum": "22",
+        "id": "RJONE",
+        "engname": "Revelation"
+    }
+]

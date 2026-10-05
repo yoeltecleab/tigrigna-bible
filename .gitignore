@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+dev-dist/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.log
+
+# Local tooling
+.vercel/
+*.local
+
+# Prototype / design exports (not shipped)
+stitch_side_by_side_reading_view/

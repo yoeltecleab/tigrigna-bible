@@ -1,0 +1,278 @@
+[
+    {
+        "title": "ኦሪት ዘፍጥረት",
+        "ChaptersNum": "50",
+        "id": "ZEFTRET",
+        "engname": "Genesis"
+    },
+    {
+        "title": "ኦሪት ዘፀኣት",
+        "ChaptersNum": "40",
+        "id": "ZEXAT",
+        "engname": "Exodus"
+    },
+    {
+        "title": "ኦሪት ዘሌዋውያን",
+        "ChaptersNum": "27",
+        "id": "ZELEWA",
+        "engname": "Leviticus"
+    },
+    {
+        "title": "ኦሪት ዘኁልቁ",
+        "ChaptersNum": "36",
+        "id": "ZEHLQ",
+        "engname": "Numbers"
+    },
+    {
+        "title": "ኦሪት ዘዳግም",
+        "ChaptersNum": "34",
+        "id": "ZEDAGM",
+        "engname": "Deuternomy"
+    },
+    {
+        "title": "መጽሓፍ ኢያሱ",
+        "ChaptersNum": "24",
+        "id": "IYASU",
+        "engname": "Joshua"
+    },
+    {
+        "title": "መጽሓፍ መሳፍንቲ",
+        "ChaptersNum": "21",
+        "id": "MESAFNT",
+        "engname": "Judges"
+    },
+    {
+        "title": "መጽሓፍ ሩት",
+        "ChaptersNum": "4",
+        "id": "RUT",
+        "engname": "Ruth"
+    },
+    {
+        "title": "1 መጽሓፍ ሳሙኤል",
+        "ChaptersNum": "31",
+        "id": "1SAMI",
+        "engname": "1 Samuel"
+    },
+    {
+        "title": "2 መጽሓፍ ሳሙኤል",
+        "ChaptersNum": "24",
+        "id": "2SAMI",
+        "engname": "2 Samuel"
+    },
+    {
+        "title": "1 መጽሓፍ ነገሥት",
+        "ChaptersNum": "22",
+        "id": "1NEGEST",
+        "engname": "1 Kings"
+    },
+    {
+        "title": "2 መጽሓፍ ነገሥት",
+        "ChaptersNum": "25",
+        "id": "2NEGEST",
+        "engname": "2 Kings"
+    },
+    {
+        "title": "1 ዜና መዋዕል",
+        "ChaptersNum": "29",
+        "id": "1ZIENA",
+        "engname": "1 Chronicles"
+    },
+    {
+        "title": "2 ዜና መዋዕል",
+        "ChaptersNum": "36",
+        "id": "2ZIENA",
+        "engname": "2 Chronicles"
+    },
+    {
+        "title": "መጽሓፍ እዝራ",
+        "ChaptersNum": "10",
+        "id": "EZRA",
+        "engname": "Ezra"
+    },
+    {
+        "title": "መጽሓፍ ጦቢት",
+        "ChaptersNum": "14",
+        "id": "TOBIT",
+        "engname": "Tobit"
+    },
+    {
+        "title": "መጽሓፍ ነህምያ",
+        "ChaptersNum": "13",
+        "id": "NEHMIYA",
+        "engname": "Nehmiah"
+    },
+    {
+        "title": "መጽሓፍ ዮዲት",
+        "ChaptersNum": "16",
+        "id": "YODIT",
+        "engname": "Judith"
+    },
+    {
+        "title": "መጽሓፍ ኣስቴር",
+        "ChaptersNum": "10",
+        "id": "ASTER",
+        "engname": "Esther"
+    },
+    {
+        "title": "1 መጽሓፍ መቃብያን",
+        "ChaptersNum": "16",
+        "id": "1MEQABYA",
+        "engname": "1 Maccabees"
+    },
+    {
+        "title": "2 መጽሓፍ መቃብያን",
+        "ChaptersNum": "15",
+        "id": "2MEQABYA",
+        "engname": "2 Maccabess"
+    },
+    {
+        "title": "መጽሓፍ ኢዮብ",
+        "ChaptersNum": "42",
+        "id": "EYOB",
+        "engname": "Job"
+    },
+    {
+        "title": "መዝሙር ዳዊት",
+        "ChaptersNum": "150",
+        "id": "DAWIT",
+        "engname": "Pslams"
+    },
+    {
+        "title": "መጽሓፍ ምሳሌ",
+        "ChaptersNum": "31",
+        "id": "MSALIE",
+        "engname": "Proverbs"
+    },
+    {
+        "title": "መጽሓፍ መክብብ",
+        "ChaptersNum": "12",
+        "id": "MEKBB",
+        "engname": "Ecclesiastes"
+    },
+    {
+        "title": "መኃልየ መኃልይ",
+        "ChaptersNum": "8",
+        "id": "MEHALIYE",
+        "engname": "Song of Songs"
+    },
+    {
+        "title": "መጽሓፍ ጥበብ ሰሎሞን",
+        "ChaptersNum": "19",
+        "id": "SELOMN",
+        "engname": "Wisdom"
+    },
+    {
+        "title": "ጥበብ ኢያሱ ወዲ ሲራክ",
+        "ChaptersNum": "51",
+        "id": "SIRAK",
+        "engname": "Sirach"
+    },
+    {
+        "title": "ትንቢት ኢሳይያስ",
+        "ChaptersNum": "66",
+        "id": "ISEYAS",
+        "engname": "Isaiah"
+    },
+    {
+        "title": "ትንቢት ኤርምያስ",
+        "ChaptersNum": "52",
+        "id": "ERMIYAS",
+        "engname": "Jeremiah"
+    },
+    {
+        "title": "ድጉዓ ኤርምያስ",
+        "ChaptersNum": "5",
+        "id": "DERMIYAS",
+        "engname": "Lemantations"
+    },
+    {
+        "title": "መጽሓፍ ባሮክ",
+        "ChaptersNum": "6",
+        "id": "BAROK",
+        "engname": "Baruch"
+    },
+    {
+        "title": "ትንቢት ሕዝቅኤል",
+        "ChaptersNum": "48",
+        "id": "HIZKIEL",
+        "engname": "Ezekiel"
+    },
+    {
+        "title": "ትንቢት ዳኒኤል",
+        "ChaptersNum": "14",
+        "id": "DANIEL",
+        "engname": "Daniel"
+    },
+    {
+        "title": "ትንቢት ሆሴዕ",
+        "ChaptersNum": "14",
+        "id": "HOSIEO",
+        "engname": "Hosea"
+    },
+    {
+        "title": "ትንቢት ኢዩኤል",
+        "ChaptersNum": "3",
+        "id": "IUIEL",
+        "engname": "Joel"
+    },
+    {
+        "title": "ትንቢት ኣሞጽ",
+        "ChaptersNum": "9",
+        "id": "AMOS",
+        "engname": "Amos"
+    },
+    {
+        "title": "ትንቢት ኣብድዩ",
+        "ChaptersNum": "1",
+        "id": "ABDYU",
+        "engname": "Obadiah"
+    },
+    {
+        "title": "ትንቢት ዮናስ",
+        "ChaptersNum": "4",
+        "id": "YONAS",
+        "engname": "Jonah"
+    },
+    {
+        "title": "ትንቢት ሚክያስ",
+        "ChaptersNum": "7",
+        "id": "MIKYAS",
+        "engname": "Micah"
+    },
+    {
+        "title": "ትንቢት ናሆም",
+        "ChaptersNum": "3",
+        "id": "NAHOM",
+        "engname": "Nahum"
+    },
+    {
+        "title": "ትንቢት እንባቆም",
+        "ChaptersNum": "3",
+        "id": "ENBAQM",
+        "engname": "Habakkuk"
+    },
+    {
+        "title": "ትንቢት ሶፎንያስ",
+        "ChaptersNum": "3",
+        "id": "SOFANYOS",
+        "engname": "Zephaniah"
+    },
+    {
+        "title": "ትንቢት ሓጌ",
+        "ChaptersNum": "2",
+        "id": "HAGIE",
+        "engname": "Haggai"
+    },
+    {
+        "title": "ትንቢት ዘካርያስ",
+        "ChaptersNum": "14",
+        "id": "ZEKARIYAS",
+        "engname": "Zechariah"
+    },
+    {
+        "title": "ትንቢት ሚልክያስ",
+        "ChaptersNum": "4",
+        "id": "MILKYAS",
+        "engname": "Malachi"
+    }
+]

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tigrigna-bible.vercel.app/sitemap.xml
