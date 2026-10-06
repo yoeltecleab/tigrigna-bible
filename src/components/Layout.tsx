@@ -64,6 +64,11 @@ export default function Layout() {
                 <main className="content">
                     <div className="route-crumb">{routeTitle}</div>
                     <Outlet/>
+                    <footer className="app-footer">
+                        <Link to="/about">About</Link>
+                        <span aria-hidden="true">·</span>
+                        <Link to="/privacy">Privacy</Link>
+                    </footer>
                 </main>
             </div>
 
@@ -80,12 +85,6 @@ export default function Layout() {
                     </NavLink>
                 ))}
             </nav>
-
-            <footer className="app-footer">
-                <Link to="/about">About</Link>
-                <span aria-hidden="true">·</span>
-                <Link to="/privacy">Privacy</Link>
-            </footer>
         </div>
     );
 }

@@ -1523,6 +1523,7 @@ button {
     justify-content: center;
     align-items: center;
     gap: 0.55rem;
+    margin-top: 1.75rem;
     padding: 0.85rem 0.5rem 0.25rem;
     color: var(--muted);
     font-size: 0.85rem;

@@ -46,5 +46,13 @@
         "sourcemap-codec": "npm:@jridgewell/sourcemap-codec@^1.4.15",
         "source-map": "^0.7.4",
         "glob": "^13.0.6"
+    },
+    "homepage": "https://github.com/yoeltecleab/tigrigna-bible",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/yoeltecleab/tigrigna-bible.git"
+    },
+    "bugs": {
+        "url": "https://github.com/yoeltecleab/tigrigna-bible/issues"
     }
 }
