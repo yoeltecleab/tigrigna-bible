@@ -1529,6 +1529,19 @@ button {
     font-size: 0.85rem;
 }
 
+.brand-logo-button {
+    overflow: hidden;
+    padding: 0.15rem;
+}
+
+.brand-logo {
+    width: 1.7rem;
+    height: 1.7rem;
+    display: block;
+    object-fit: contain;
+    border-radius: 0.35rem;
+}
+
 .app-footer a {
     color: var(--muted);
     text-decoration: none;

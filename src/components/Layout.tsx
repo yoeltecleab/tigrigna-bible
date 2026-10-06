@@ -26,8 +26,8 @@ export default function Layout() {
         <div className="app-shell" data-route={routeKey}>
             <header className="topbar">
                 <div className="brand-lockup">
-                    <Link className="icon-button" to="/" aria-label="Go to library">
-                        <span className="material-symbols-outlined">church</span>
+                    <Link className="icon-button brand-logo-button" to="/" aria-label="Go to library">
+                        <img className="brand-logo" src="/icons/icon-192-v3.png" alt="" width={28} height={28} />
                     </Link>
                     <div>
                         <h1>ወንጌል ቅዱስ</h1>
