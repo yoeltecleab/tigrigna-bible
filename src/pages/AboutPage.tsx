@@ -40,9 +40,14 @@ export default function AboutPage() {
             <div className="panel stack-sm">
                 <h3>Contact</h3>
                 <p>
-                    Questions, licensing notices, or takedown requests:{' '}
-                    <a className="inline-link" href="mailto:hello@tigrigna-bible.app">
-                        hello@tigrigna-bible.app
+                    Questions, licensing notices, or takedown requests can be opened as an issue on{' '}
+                    <a
+                        className="inline-link"
+                        href="https://github.com/yoeltecleab/tigrigna-bible/issues"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        GitHub
                     </a>
                     .
                 </p>

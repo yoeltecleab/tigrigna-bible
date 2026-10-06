@@ -46,8 +46,13 @@ export default function PrivacyPage() {
                 <h3>Contact</h3>
                 <p>
                     Privacy questions:{' '}
-                    <a className="inline-link" href="mailto:hello@tigrigna-bible.app">
-                        hello@tigrigna-bible.app
+                    <a
+                        className="inline-link"
+                        href="https://github.com/yoeltecleab/tigrigna-bible/issues"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        open a GitHub issue
                     </a>
                     . See also the <Link className="inline-link" to="/about">About</Link> page.
                 </p>
