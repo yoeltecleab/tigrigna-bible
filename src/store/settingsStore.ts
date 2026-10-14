@@ -1,8 +1,10 @@
 import {create} from 'zustand';
 import {persist} from 'zustand/middleware';
+import {normalizeThemeId, type DesignTheme} from '../themes';
 
-type DesignTheme = 'sacred-covenant' | 'aether-light' | 'orthodox';
 type UiLanguage = 'ti' | 'en';
+
+export type {DesignTheme};
 
 type LastReading = {
     bookId: string;
@@ -15,8 +17,11 @@ type SettingsState = {
     systemLanguage: UiLanguage;
     fontScale: number;
     appFontScale: number;
+    lineHeightScale: number;
     designTheme: DesignTheme;
     showDecorativeCrosses: boolean;
+    searchExactPhrase: boolean;
+    searchCaseSensitive: boolean;
     recentSearches: string[];
     lastReading: LastReading | null;
     setLanguage: (language: string) => void;
@@ -24,9 +29,12 @@ type SettingsState = {
     setSystemLanguage: (language: UiLanguage) => void;
     setFontScale: (fontScale: number) => void;
     setAppFontScale: (appFontScale: number) => void;
+    setLineHeightScale: (lineHeightScale: number) => void;
     syncFontScales: () => void;
     setDesignTheme: (designTheme: DesignTheme) => void;
     setShowDecorativeCrosses: (enabled: boolean) => void;
+    setSearchExactPhrase: (enabled: boolean) => void;
+    setSearchCaseSensitive: (enabled: boolean) => void;
     addRecentSearch: (query: string) => void;
     clearRecentSearches: () => void;
     setLastReading: (lastReading: LastReading) => void;
@@ -40,8 +48,11 @@ export const useSettingsStore = create<SettingsState>()(
             systemLanguage: 'en',
             fontScale: 1,
             appFontScale: 1,
+            lineHeightScale: 1.75,
             designTheme: 'sacred-covenant',
             showDecorativeCrosses: true,
+            searchExactPhrase: false,
+            searchCaseSensitive: false,
             recentSearches: [],
             lastReading: null,
             setLanguage: language => set({language}),
@@ -54,9 +65,12 @@ export const useSettingsStore = create<SettingsState>()(
             setSystemLanguage: systemLanguage => set({systemLanguage}),
             setFontScale: fontScale => set({fontScale}),
             setAppFontScale: appFontScale => set({appFontScale}),
+            setLineHeightScale: lineHeightScale => set({lineHeightScale}),
             syncFontScales: () => set(state => ({appFontScale: Math.min(1.35, Math.max(0.85, state.fontScale))})),
             setDesignTheme: designTheme => set({designTheme}),
             setShowDecorativeCrosses: showDecorativeCrosses => set({showDecorativeCrosses}),
+            setSearchExactPhrase: searchExactPhrase => set({searchExactPhrase}),
+            setSearchCaseSensitive: searchCaseSensitive => set({searchCaseSensitive}),
             addRecentSearch: query =>
                 set(state => {
                     const trimmed = query.trim();
@@ -73,7 +87,15 @@ export const useSettingsStore = create<SettingsState>()(
             setLastReading: lastReading => set({lastReading})
         }),
         {
-            name: 'tb-web-settings-v1'
+            name: 'tb-web-settings-v1',
+            merge: (persisted, current) => {
+                const incoming = (persisted ?? {}) as Partial<SettingsState>;
+                return {
+                    ...current,
+                    ...incoming,
+                    designTheme: normalizeThemeId(incoming.designTheme)
+                };
+            }
         }
     )
 );

@@ -37,3 +37,7 @@ export type SearchVerse = {
 export const isVerse = (row: ChapterRow): row is Verse => {
     return typeof (row as Verse).verseid === 'number' && typeof (row as Verse).versetext === 'string';
 };
+
+export const isSubtitle = (row: ChapterRow): row is Subtitle => {
+    return typeof (row as Subtitle).subtitle === 'string';
+};

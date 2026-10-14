@@ -1,4 +1,6 @@
 import {Link} from 'react-router-dom';
+import OfflinePackPanel from '../components/OfflinePackPanel';
+import ThemePicker from '../components/ThemePicker';
 import {useSettingsStore} from '../store/settingsStore';
 import {getUi} from '../i18n/ui';
 
@@ -46,18 +48,19 @@ export default function SettingsPage() {
                     </select>
                 </label>
 
-                <label className="stack-xs">
+                <div className="stack-xs">
                     <span>{ui.designTheme}</span>
-                    <select
-                        className="input"
+                    <ThemePicker
                         value={designTheme}
-                        onChange={event => setDesignTheme(event.target.value as 'sacred-covenant' | 'aether-light' | 'orthodox')}
-                    >
-                        <option value="sacred-covenant">Sacred Covenant</option>
-                        <option value="aether-light">Aether Light</option>
-                        <option value="orthodox">Orthodox</option>
-                    </select>
-                </label>
+                        onChange={setDesignTheme}
+                        tierLabels={{
+                            bible: ui.themeTierBible,
+                            dark: ui.themeTierDark,
+                            mid: ui.themeTierMid,
+                            light: ui.themeTierLight
+                        }}
+                    />
+                </div>
 
                 <label className="stack-xs">
                     <span>
@@ -102,7 +105,7 @@ export default function SettingsPage() {
                             onClick={() => setShowDecorativeCrosses(!showDecorativeCrosses)}
                             aria-pressed={showDecorativeCrosses}
                         >
-                            <span/>
+                            <span />
                         </button>
                     </label>
                 </div>
@@ -122,6 +125,10 @@ export default function SettingsPage() {
                         <p className="muted">—</p>
                     )}
                 </div>
+            </div>
+
+            <div className="panel stack-sm">
+                <OfflinePackPanel />
             </div>
 
             <div className="panel stack-sm">

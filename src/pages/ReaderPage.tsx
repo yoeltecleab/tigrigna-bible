@@ -1,9 +1,16 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {Link, useLocation, useNavigate, useParams, useSearchParams} from 'react-router-dom';
-import {getRelatedVerses, loadBooks, loadChapterFile, loadReaderIndex} from '../data/api';
-import {Book, ChapterRow, isVerse, SearchVerse} from '../types/bible';
+import {
+    buildRelatedQuery,
+    getRelatedVerses,
+    loadBooks,
+    loadChapterFile,
+    loadReaderIndex,
+    mergeRelatedVerses
+} from '../data/api';
+import {Book, ChapterRow, isSubtitle, isVerse, SearchVerse} from '../types/bible';
 import {useSettingsStore} from '../store/settingsStore';
-import {useSavedStore} from '../store/savedStore';
+import {HIGHLIGHT_COLORS, useSavedStore, type HighlightColor} from '../store/savedStore';
 import {buildSharePayload, readerShareUrl} from '../lib/site';
 import {getUi} from '../i18n/ui';
 import Icon from '../components/Icon';
@@ -77,6 +84,8 @@ export default function ReaderPage() {
     const systemLanguage = useSettingsStore(state => state.systemLanguage);
     const fontScale = useSettingsStore(state => state.fontScale);
     const setFontScale = useSettingsStore(state => state.setFontScale);
+    const lineHeightScale = useSettingsStore(state => state.lineHeightScale);
+    const setLineHeightScale = useSettingsStore(state => state.setLineHeightScale);
     const setLastReading = useSettingsStore(state => state.setLastReading);
     const ui = getUi(systemLanguage);
 
@@ -88,7 +97,6 @@ export default function ReaderPage() {
     const [readerIndex, setReaderIndex] = useState<SearchVerse[]>([]);
     const [isLoadingChapter, setIsLoadingChapter] = useState(true);
     const [isLoadingBooks, setIsLoadingBooks] = useState(true);
-    const [lineHeightScale, setLineHeightScale] = useState(1.75);
     const [compareMode, setCompareMode] = useState(false);
     const [showReaderTools, setShowReaderTools] = useState(false);
     const [showRelated, setShowRelated] = useState(false);
@@ -100,14 +108,21 @@ export default function ReaderPage() {
     const [noteDraft, setNoteDraft] = useState('');
     const [newCollectionName, setNewCollectionName] = useState('');
     const [highlightedVerse, setHighlightedVerse] = useState<number | null>(null);
+    const [related, setRelated] = useState<SearchVerse[]>([]);
+    const [selectMode, setSelectMode] = useState(false);
+    const [multiSelected, setMultiSelected] = useState<string[]>([]);
+    const [copyStatus, setCopyStatus] = useState<string | null>(null);
     const touchStartX = useRef<number | null>(null);
     const highlightTimeout = useRef<number | null>(null);
     const lastJumpRef = useRef('');
     const modalRef = useRef<HTMLDivElement | null>(null);
     const readerIndexLoaded = useRef(false);
+    const relatedWorkerRef = useRef<Worker | null>(null);
+    const relatedRequestRef = useRef(0);
 
     const toggleBookmark = useSavedStore(state => state.toggleBookmark);
     const toggleHighlight = useSavedStore(state => state.toggleHighlight);
+    const getHighlightColor = useSavedStore(state => state.getHighlightColor);
     const notes = useSavedStore(state => state.notes);
     const collections = useSavedStore(state => state.collections);
     const collectionItems = useSavedStore(state => state.collectionItems);
@@ -222,6 +237,15 @@ export default function ReaderPage() {
         () => new Set(versesState.filter(item => item.kind === 'highlight').map(item => item.key)),
         [versesState]
     );
+    const highlightColorMap = useMemo(() => {
+        const map = new Map<string, HighlightColor>();
+        for (const item of versesState) {
+            if (item.kind === 'highlight') {
+                map.set(item.key, item.color ?? 'gold');
+            }
+        }
+        return map;
+    }, [versesState]);
     const collectionKeys = useMemo(() => new Set(collectionItems.map(item => item.key)), [collectionItems]);
     const noteKeySet = useMemo(() => new Set(notes.map(note => note.key)), [notes]);
 
@@ -262,17 +286,72 @@ export default function ReaderPage() {
         setNoteDraft(selectedVerseNote?.note ?? '');
     }, [selectedVerseNote, selectedVerseKey]);
 
-    const related = useMemo(() => {
-        if (verseEntries.length === 0 || readerIndex.length === 0) {
-            return [];
+    useEffect(() => {
+        relatedWorkerRef.current = new Worker(new URL('../workers/searchWorker.ts', import.meta.url), {
+            type: 'module'
+        });
+        return () => {
+            relatedWorkerRef.current?.terminate();
+            relatedWorkerRef.current = null;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (verseEntries.length === 0) {
+            setRelated([]);
+            return;
         }
-        const anchor = verseEntries[Math.min(2, verseEntries.length - 1)];
-        return getRelatedVerses(
-            {bookId, chapter: numericChapter, verse: anchor.verse.verseid, text: anchor.text},
-            readerIndex,
-            5
-        );
-    }, [verseEntries, readerIndex, bookId, numericChapter]);
+
+        const selected = selectedVerseKey
+            ? verseEntries.find(entry => entry.key === selectedVerseKey)
+            : null;
+        const anchor = selected ?? verseEntries[Math.min(2, verseEntries.length - 1)];
+        const source = {
+            bookId,
+            chapter: numericChapter,
+            verse: anchor.verse.verseid,
+            text: anchor.text
+        };
+        const sourceKey = `${bookId}:${numericChapter}:${anchor.verse.verseid}`;
+        const indexRelated = readerIndex.length > 0 ? getRelatedVerses(source, readerIndex, 8) : [];
+        setRelated(indexRelated);
+
+        if (!showRelated || !relatedWorkerRef.current || books.length === 0) {
+            return;
+        }
+
+        const query = buildRelatedQuery(anchor.text);
+        if (!query) {
+            return;
+        }
+
+        relatedRequestRef.current += 1;
+        const requestId = relatedRequestRef.current;
+        const worker = relatedWorkerRef.current;
+
+        worker.onmessage = event => {
+            const payload = event.data as {type: 'results'; requestId: number; results: SearchVerse[]};
+            if (payload.type !== 'results' || payload.requestId !== requestId) {
+                return;
+            }
+            setRelated(mergeRelatedVerses(indexRelated, payload.results, sourceKey, 8));
+        };
+
+        worker.postMessage({
+            type: 'search',
+            requestId,
+            language,
+            query,
+            books: books.map(book => book.id),
+            limit: 40
+        });
+    }, [verseEntries, readerIndex, bookId, numericChapter, showRelated, books, language, selectedVerseKey]);
+
+    useEffect(() => {
+        setMultiSelected([]);
+        setSelectMode(false);
+        setCopyStatus(null);
+    }, [bookId, numericChapter]);
 
     useEffect(() => {
         const state = location.state as ReaderLocationState | null;
@@ -343,8 +422,85 @@ export default function ReaderPage() {
     };
 
     const selectVerse = (key: string, verseId: number) => {
+        if (selectMode) {
+            setMultiSelected(current =>
+                current.includes(key) ? current.filter(item => item !== key) : [...current, key]
+            );
+            setActiveParallelVerse(verseId);
+            return;
+        }
         setSelectedVerseKey(key);
         setActiveParallelVerse(verseId);
+    };
+
+    const colorLabel = (color: HighlightColor) => {
+        if (color === 'rose') return ui.colorRose;
+        if (color === 'green') return ui.colorGreen;
+        if (color === 'sky') return ui.colorSky;
+        return ui.colorGold;
+    };
+
+    const formatCitation = (entries: typeof verseEntries) => {
+        if (entries.length === 0) {
+            return '';
+        }
+        const sorted = [...entries].sort((left, right) => left.verse.verseid - right.verse.verseid);
+        const first = sorted[0];
+        const last = sorted[sorted.length - 1];
+        const verseLabel =
+            first.verse.verseid === last.verse.verseid
+                ? first.label
+                : `${first.start}-${last.end}`;
+        const reference = `${bookTitle} ${numericChapter}:${verseLabel}`;
+        const body = sorted.map(entry => `${entry.label} ${entry.text}`).join('\n');
+        const url = readerShareUrl(bookId, numericChapter, first.verse.verseid);
+        return `${body}\n\n${reference}\n${url}`;
+    };
+
+    const copyCitationText = async (text: string) => {
+        try {
+            if (navigator.clipboard) {
+                await navigator.clipboard.writeText(text);
+                setCopyStatus(ui.copied);
+                window.setTimeout(() => setCopyStatus(null), 1800);
+            }
+        } catch {
+            setCopyStatus(null);
+        }
+    };
+
+    const copySelectedCitation = async () => {
+        if (selectedVerse) {
+            await copyCitationText(formatCitation([selectedVerse]));
+            return;
+        }
+        const entries = verseEntries.filter(entry => multiSelected.includes(entry.key));
+        await copyCitationText(formatCitation(entries));
+    };
+
+    const shareMultiSelected = async () => {
+        const entries = verseEntries.filter(entry => multiSelected.includes(entry.key));
+        if (entries.length === 0) {
+            return;
+        }
+        const text = formatCitation(entries);
+        const sorted = [...entries].sort((left, right) => left.verse.verseid - right.verse.verseid);
+        const first = sorted[0];
+        const last = sorted[sorted.length - 1];
+        const verseLabel =
+            first.verse.verseid === last.verse.verseid ? first.label : `${first.start}-${last.end}`;
+        const reference = `${bookTitle} ${numericChapter}:${verseLabel}`;
+        const url = readerShareUrl(bookId, numericChapter, first.verse.verseid);
+        const payload = buildSharePayload(reference, text, url);
+        try {
+            if (navigator.share) {
+                await navigator.share(payload);
+                return;
+            }
+            await copyCitationText(text);
+        } catch {
+            // ignore
+        }
     };
 
     const applyCollection = (collectionId: string) => {
@@ -449,12 +605,16 @@ export default function ReaderPage() {
         }
         if (highlightedKeys.has(key)) {
             classes.push('verse-row-saved-highlight');
+            classes.push(`verse-row-hl-${highlightColorMap.get(key) ?? 'gold'}`);
         }
         if (collectionKeys.has(key)) {
             classes.push('verse-row-collected');
         }
         if (noteKeySet.has(key)) {
             classes.push('verse-row-noted');
+        }
+        if (multiSelected.includes(key)) {
+            classes.push('verse-row-multi-selected');
         }
         return classes.join(' ');
     };
@@ -524,6 +684,29 @@ export default function ReaderPage() {
                         <Link className="btn" to={`/books/${bookId}`}>
                             {ui.chapters}
                         </Link>
+                        <button
+                            className={selectMode ? 'btn btn-primary' : 'btn'}
+                            type="button"
+                            onClick={() => {
+                                setSelectMode(value => !value);
+                                setMultiSelected([]);
+                                setSelectedVerseKey(null);
+                            }}
+                            aria-pressed={selectMode}
+                        >
+                            {selectMode ? ui.doneSelecting : ui.selectVerses}
+                        </button>
+                        {selectMode && multiSelected.length > 0 ? (
+                            <>
+                                <span className="meta">{ui.selectedCount(multiSelected.length)}</span>
+                                <button className="btn" type="button" onClick={() => void copySelectedCitation()}>
+                                    {copyStatus ?? ui.copyCitation}
+                                </button>
+                                <button className="btn btn-primary" type="button" onClick={() => void shareMultiSelected()}>
+                                    {ui.shareSelected}
+                                </button>
+                            </>
+                        ) : null}
                     </div>
                 </header>
 
@@ -545,33 +728,70 @@ export default function ReaderPage() {
                                 Array.from({length: 8}).map((_, index) => (
                                     <div className="verse-row skeleton" key={`verse-skeleton-${index}`}/>
                                 ))}
-                            {verseEntries.map(verse => {
-                                const hasCollection = collectionKeys.has(verse.key);
-                                const hasNote = noteKeySet.has(verse.key);
-                                const hasBookmark = bookmarkedKeys.has(verse.key);
-                                const hasHighlight = highlightedKeys.has(verse.key);
-                                return (
-                                    <article
-                                        className={verseRowClass(verse.key, verse.start, verse.end)}
-                                        key={verse.key}
-                                        data-verse-key={verse.key}
-                                        onClick={() => selectVerse(verse.key, verse.verse.verseid)}
-                                    >
-                                        <span className="verse-number">{verse.label}</span>
-                                        <p className="verse-body" style={{fontSize: `${fontScale}rem`, lineHeight: lineHeightScale}}>
-                                            {verse.text}
-                                        </p>
-                                        {hasBookmark || hasHighlight || hasCollection || hasNote ? (
-                                            <div className="verse-marker-dots" aria-hidden="true">
-                                                {hasBookmark ? <span className="dot dot-bookmark"/> : null}
-                                                {hasHighlight ? <span className="dot dot-highlight"/> : null}
-                                                {hasCollection ? <span className="dot dot-collection"/> : null}
-                                                {hasNote ? <span className="dot dot-note"/> : null}
-                                            </div>
-                                        ) : null}
-                                    </article>
-                                );
-                            })}
+                            {!isLoadingChapter
+                                ? chapterRows.map((row, index) => {
+                                      if (isSubtitle(row)) {
+                                          return (
+                                              <h4 className="chapter-subtitle" key={`subtitle-${bookId}-${numericChapter}-${index}`}>
+                                                  {row.subtitle}
+                                              </h4>
+                                          );
+                                      }
+                                      if (!isVerse(row)) {
+                                          return null;
+                                      }
+                                      const verse = verseEntries.find(entry => entry.verse.verseid === row.verseid);
+                                      if (!verse) {
+                                          return null;
+                                      }
+                                      const hasCollection = collectionKeys.has(verse.key);
+                                      const hasNote = noteKeySet.has(verse.key);
+                                      const hasBookmark = bookmarkedKeys.has(verse.key);
+                                      const hasHighlight = highlightedKeys.has(verse.key);
+                                      return (
+                                          <article
+                                              className={verseRowClass(verse.key, verse.start, verse.end)}
+                                              key={verse.key}
+                                              data-verse-key={verse.key}
+                                              onClick={() => selectVerse(verse.key, verse.verse.verseid)}
+                                          >
+                                              {selectMode ? (
+                                                  <span
+                                                      className={
+                                                          multiSelected.includes(verse.key)
+                                                              ? 'verse-check verse-check-on'
+                                                              : 'verse-check'
+                                                      }
+                                                      aria-hidden="true"
+                                                  />
+                                              ) : (
+                                                  <span className="verse-number">{verse.label}</span>
+                                              )}
+                                              <p
+                                                  className="verse-body"
+                                                  style={{fontSize: `${fontScale}rem`, lineHeight: lineHeightScale}}
+                                              >
+                                                  {selectMode ? (
+                                                      <span className="verse-inline-number">{verse.label} </span>
+                                                  ) : null}
+                                                  {verse.text}
+                                              </p>
+                                              {hasBookmark || hasHighlight || hasCollection || hasNote ? (
+                                                  <div className="verse-marker-dots" aria-hidden="true">
+                                                      {hasBookmark ? <span className="dot dot-bookmark"/> : null}
+                                                      {hasHighlight ? (
+                                                          <span
+                                                              className={`dot dot-highlight dot-hl-${highlightColorMap.get(verse.key) ?? 'gold'}`}
+                                                          />
+                                                      ) : null}
+                                                      {hasCollection ? <span className="dot dot-collection"/> : null}
+                                                      {hasNote ? <span className="dot dot-note"/> : null}
+                                                  </div>
+                                              ) : null}
+                                          </article>
+                                      );
+                                  })
+                                : null}
                         </div>
                     </article>
 
@@ -582,7 +802,7 @@ export default function ReaderPage() {
                                 <h3>
                                     {(booksMap.get(compareBookId)?.title ?? compareBookId)} {compareChapter}
                                 </h3>
-                                <p className="muted">Tigrigna · parallel study</p>
+                                <p className="muted">{ui.parallelStudyHint}</p>
                             </header>
 
                             <button
@@ -634,27 +854,49 @@ export default function ReaderPage() {
                             ) : null}
 
                             <div className="stack-sm verse-stack">
-                                {compareVerseEntries.map(verse => (
-                                    <article
-                                        className={
-                                            activeParallelVerse != null &&
-                                            activeParallelVerse >= verse.start &&
-                                            activeParallelVerse <= verse.end
-                                                ? 'verse-row parallel-verse verse-row-active'
-                                                : 'verse-row parallel-verse'
-                                        }
-                                        key={verse.key}
-                                        onClick={() => setActiveParallelVerse(verse.verseId)}
-                                    >
-                                        <span className="verse-number verse-number-secondary">{verse.label}</span>
-                                        <p
-                                            className="verse-body"
-                                            style={{fontSize: `${Math.max(0.95, fontScale)}rem`, lineHeight: lineHeightScale}}
+                                {compareRows.map((row, index) => {
+                                    if (isSubtitle(row)) {
+                                        return (
+                                            <h4
+                                                className="chapter-subtitle"
+                                                key={`compare-sub-${compareBookId}-${compareChapter}-${index}`}
+                                            >
+                                                {row.subtitle}
+                                            </h4>
+                                        );
+                                    }
+                                    if (!isVerse(row)) {
+                                        return null;
+                                    }
+                                    const verse = compareVerseEntries.find(entry => entry.verseId === row.verseid);
+                                    if (!verse) {
+                                        return null;
+                                    }
+                                    return (
+                                        <article
+                                            className={
+                                                activeParallelVerse != null &&
+                                                activeParallelVerse >= verse.start &&
+                                                activeParallelVerse <= verse.end
+                                                    ? 'verse-row parallel-verse verse-row-active'
+                                                    : 'verse-row parallel-verse'
+                                            }
+                                            key={verse.key}
+                                            onClick={() => setActiveParallelVerse(verse.verseId)}
                                         >
-                                            {verse.text}
-                                        </p>
-                                    </article>
-                                ))}
+                                            <span className="verse-number verse-number-secondary">{verse.label}</span>
+                                            <p
+                                                className="verse-body"
+                                                style={{
+                                                    fontSize: `${Math.max(0.95, fontScale)}rem`,
+                                                    lineHeight: lineHeightScale
+                                                }}
+                                            >
+                                                {verse.text}
+                                            </p>
+                                        </article>
+                                    );
+                                })}
                             </div>
                         </article>
                     ) : null}
@@ -664,7 +906,7 @@ export default function ReaderPage() {
             <div className="panel stack-sm">
                 <div className="section-header">
                     <div>
-                        <p className="eyebrow">Cross references</p>
+                        <p className="eyebrow">{ui.crossReferences}</p>
                         <h3>{ui.relatedVerses}</h3>
                     </div>
                     <button
@@ -745,24 +987,47 @@ export default function ReaderPage() {
                             >
                                 {ui.bookmark}
                             </button>
-                            <button
-                                className={selectedVerseKey && isHighlighted(selectedVerseKey) ? 'chip chip-highlight chip-active-highlight' : 'chip chip-highlight'}
-                                type="button"
-                                onClick={() =>
-                                    toggleHighlight({
-                                        key: selectedVerseKey!,
-                                        bookId,
-                                        chapter: numericChapter,
-                                        verse: selectedVerse.verse.verseid,
-                                        text: selectedVerse.text
-                                    })
-                                }
-                            >
-                                {ui.highlight}
-                            </button>
                             <button className="chip" type="button" onClick={() => void shareSelectedVerse()}>
                                 {ui.share}
                             </button>
+                            <button className="chip" type="button" onClick={() => void copySelectedCitation()}>
+                                {copyStatus ?? ui.copyCitation}
+                            </button>
+                        </div>
+
+                        <div className="stack-xs">
+                            <p className="meta">{ui.highlightColor}</p>
+                            <div className="row gap-sm wrap highlight-color-row">
+                                {HIGHLIGHT_COLORS.map(color => {
+                                    const active =
+                                        selectedVerseKey != null && getHighlightColor(selectedVerseKey) === color;
+                                    return (
+                                        <button
+                                            key={color}
+                                            type="button"
+                                            className={
+                                                active
+                                                    ? `chip chip-hl chip-hl-${color} chip-hl-active`
+                                                    : `chip chip-hl chip-hl-${color}`
+                                            }
+                                            onClick={() =>
+                                                toggleHighlight(
+                                                    {
+                                                        key: selectedVerseKey!,
+                                                        bookId,
+                                                        chapter: numericChapter,
+                                                        verse: selectedVerse.verse.verseid,
+                                                        text: selectedVerse.text
+                                                    },
+                                                    color
+                                                )
+                                            }
+                                        >
+                                            {colorLabel(color)}
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         </div>
 
                         <div className="stack-xs">
@@ -820,7 +1085,9 @@ export default function ReaderPage() {
                         </div>
 
                         {selectedVerseCollections.length > 0 ? (
-                            <p className="muted">In: {selectedVerseCollections.map(collection => collection.name).join(', ')}</p>
+                            <p className="muted">
+                                {ui.inCollections(selectedVerseCollections.map(collection => collection.name).join(', '))}
+                            </p>
                         ) : null}
                     </div>
                 </div>

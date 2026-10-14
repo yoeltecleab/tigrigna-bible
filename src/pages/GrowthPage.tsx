@@ -79,9 +79,7 @@ export default function GrowthPage() {
 
                 <div className="panel stack-sm">
                     <p className="eyebrow">{ui.journey}</p>
-                    <p className="muted">
-                        {bookmarkCount} bookmarks · {highlightCount} highlights · {notes.length} notes
-                    </p>
+                    <p className="muted">{ui.journeyCounts(bookmarkCount, highlightCount, notes.length)}</p>
                     <Link className="btn" to="/journey">
                         {ui.savedVerses}
                     </Link>
@@ -97,7 +95,7 @@ export default function GrowthPage() {
                         <article key={badge.id} className={badge.status === 'locked' ? 'badge-item muted-badge' : 'badge-item'}>
                             <Icon name={badge.icon} size={22} />
                             <strong>{badge.title}</strong>
-                            <span className="meta">{badge.status}</span>
+                            <span className="meta">{badge.status === 'earned' ? ui.badgeEarned : ui.badgeLocked}</span>
                         </article>
                     ))}
                 </div>

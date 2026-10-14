@@ -1,6 +1,10 @@
 import {create} from 'zustand';
 import {persist} from 'zustand/middleware';
 
+export type HighlightColor = 'gold' | 'rose' | 'green' | 'sky';
+
+export const HIGHLIGHT_COLORS: HighlightColor[] = ['gold', 'rose', 'green', 'sky'];
+
 type SavedVerse = {
     key: string;
     bookId: string;
@@ -9,6 +13,7 @@ type SavedVerse = {
     text: string;
     createdAt: string;
     kind: 'bookmark' | 'highlight';
+    color?: HighlightColor;
 };
 
 type Collection = {
@@ -40,13 +45,16 @@ type VerseNote = {
     updatedAt: string;
 };
 
+type VersePayload = Omit<SavedVerse, 'createdAt' | 'kind' | 'color'>;
+
 type SavedState = {
     verses: SavedVerse[];
     collections: Collection[];
     collectionItems: CollectionItem[];
     notes: VerseNote[];
-    toggleBookmark: (verse: Omit<SavedVerse, 'createdAt' | 'kind'>) => void;
-    toggleHighlight: (verse: Omit<SavedVerse, 'createdAt' | 'kind'>) => void;
+    toggleBookmark: (verse: VersePayload) => void;
+    toggleHighlight: (verse: VersePayload, color?: HighlightColor) => void;
+    setHighlightColor: (verse: VersePayload, color: HighlightColor) => void;
     createCollection: (name: string) => string;
     addToCollection: (collectionId: string, verse: Omit<CollectionItem, 'id' | 'collectionId' | 'createdAt'>) => void;
     removeFromCollection: (collectionId: string, key: string) => void;
@@ -57,14 +65,7 @@ type SavedState = {
     isInCollection: (collectionId: string, key: string) => boolean;
     isBookmarked: (key: string) => boolean;
     isHighlighted: (key: string) => boolean;
-};
-
-const upsert = (verses: SavedVerse[], value: SavedVerse) => {
-    const exists = verses.find(v => v.key === value.key && v.kind === value.kind);
-    if (exists) {
-        return verses.filter(v => !(v.key === value.key && v.kind === value.kind));
-    }
-    return [value, ...verses];
+    getHighlightColor: (key: string) => HighlightColor | null;
 };
 
 export const useSavedStore = create<SavedState>()(
@@ -78,21 +79,75 @@ export const useSavedStore = create<SavedState>()(
             collectionItems: [],
             notes: [],
             toggleBookmark: verse =>
-                set(state => ({
-                    verses: upsert(state.verses, {
-                        ...verse,
-                        createdAt: new Date().toISOString(),
-                        kind: 'bookmark'
-                    })
-                })),
-            toggleHighlight: verse =>
-                set(state => ({
-                    verses: upsert(state.verses, {
-                        ...verse,
-                        createdAt: new Date().toISOString(),
-                        kind: 'highlight'
-                    })
-                })),
+                set(state => {
+                    const exists = state.verses.some(item => item.key === verse.key && item.kind === 'bookmark');
+                    if (exists) {
+                        return {
+                            verses: state.verses.filter(item => !(item.key === verse.key && item.kind === 'bookmark'))
+                        };
+                    }
+                    return {
+                        verses: [
+                            {
+                                ...verse,
+                                createdAt: new Date().toISOString(),
+                                kind: 'bookmark'
+                            },
+                            ...state.verses
+                        ]
+                    };
+                }),
+            toggleHighlight: (verse, color = 'gold') =>
+                set(state => {
+                    const existing = state.verses.find(item => item.key === verse.key && item.kind === 'highlight');
+                    if (existing && (existing.color ?? 'gold') === color) {
+                        return {
+                            verses: state.verses.filter(item => !(item.key === verse.key && item.kind === 'highlight'))
+                        };
+                    }
+                    if (existing) {
+                        return {
+                            verses: state.verses.map(item =>
+                                item.key === verse.key && item.kind === 'highlight'
+                                    ? {...item, color, text: verse.text}
+                                    : item
+                            )
+                        };
+                    }
+                    return {
+                        verses: [
+                            {
+                                ...verse,
+                                createdAt: new Date().toISOString(),
+                                kind: 'highlight',
+                                color
+                            },
+                            ...state.verses
+                        ]
+                    };
+                }),
+            setHighlightColor: (verse, color) =>
+                set(state => {
+                    const existing = state.verses.find(item => item.key === verse.key && item.kind === 'highlight');
+                    if (existing) {
+                        return {
+                            verses: state.verses.map(item =>
+                                item.key === verse.key && item.kind === 'highlight' ? {...item, color} : item
+                            )
+                        };
+                    }
+                    return {
+                        verses: [
+                            {
+                                ...verse,
+                                createdAt: new Date().toISOString(),
+                                kind: 'highlight',
+                                color
+                            },
+                            ...state.verses
+                        ]
+                    };
+                }),
             createCollection: name => {
                 const trimmed = name.trim();
                 if (!trimmed) {
@@ -163,10 +218,10 @@ export const useSavedStore = create<SavedState>()(
                             notes: state.notes.map(item =>
                                 item.key === note.key
                                     ? {
-                                        ...item,
-                                        note: trimmed,
-                                        updatedAt: new Date().toISOString()
-                                    }
+                                          ...item,
+                                          note: trimmed,
+                                          updatedAt: new Date().toISOString()
+                                      }
                                     : item
                             )
                         };
@@ -200,7 +255,11 @@ export const useSavedStore = create<SavedState>()(
             isInCollection: (collectionId, key) =>
                 get().collectionItems.some(item => item.collectionId === collectionId && item.key === key),
             isBookmarked: key => get().verses.some(v => v.key === key && v.kind === 'bookmark'),
-            isHighlighted: key => get().verses.some(v => v.key === key && v.kind === 'highlight')
+            isHighlighted: key => get().verses.some(v => v.key === key && v.kind === 'highlight'),
+            getHighlightColor: key => {
+                const item = get().verses.find(v => v.key === key && v.kind === 'highlight');
+                return item ? (item.color ?? 'gold') : null;
+            }
         }),
         {name: 'tb-web-saved-v1'}
     )

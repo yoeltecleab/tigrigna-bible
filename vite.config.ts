@@ -2,7 +2,7 @@ import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import {VitePWA} from 'vite-plugin-pwa';
 
-const ICON_VERSION = 'v3';
+const ICON_VERSION = 'v4';
 
 export default defineConfig({
     server: {
@@ -26,6 +26,8 @@ export default defineConfig({
                 'favicon-32.png',
                 'apple-touch-icon.png',
                 `icons/apple-touch-icon-${ICON_VERSION}.png`,
+                `icons/apple-touch-icon-167-${ICON_VERSION}.png`,
+                `icons/apple-touch-icon-152-${ICON_VERSION}.png`,
                 `icons/favicon-16-${ICON_VERSION}.png`,
                 `icons/favicon-32-${ICON_VERSION}.png`,
                 `icons/icon-192-${ICON_VERSION}.png`,
@@ -39,10 +41,10 @@ export default defineConfig({
             manifest: {
                 id: '/',
                 name: 'Tigrigna Bible',
-                short_name: 'Tigrigna',
+                short_name: 'ወንጌል',
                 description: 'Offline-capable Tigrigna Bible reader and search experience.',
-                theme_color: '#3b2416',
-                background_color: '#ffffff',
+                theme_color: '#fbf7e8',
+                background_color: '#fbf7e8',
                 display: 'standalone',
                 orientation: 'any',
                 start_url: '/',

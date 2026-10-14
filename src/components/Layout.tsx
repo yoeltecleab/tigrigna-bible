@@ -4,13 +4,17 @@ import InstallPrompt from './InstallPrompt';
 import Icon from './Icon';
 import {useSettingsStore} from '../store/settingsStore';
 import {getUi} from '../i18n/ui';
+import {loadBooks} from '../data/api';
+import {countOfflineInventory} from '../lib/offlinePack';
 
 export default function Layout() {
     const location = useLocation();
+    const language = useSettingsStore(state => state.language);
     const systemLanguage = useSettingsStore(state => state.systemLanguage);
     const ui = getUi(systemLanguage);
     const [offline, setOffline] = useState(!navigator.onLine);
     const [updateReady, setUpdateReady] = useState(false);
+    const [offlinePackReady, setOfflinePackReady] = useState(false);
 
     const navItems = [
         {to: '/', label: ui.library, icon: 'auto_stories'},
@@ -58,12 +62,31 @@ export default function Layout() {
         };
     }, []);
 
+    useEffect(() => {
+        let cancelled = false;
+        void loadBooks(language)
+            .then(books => countOfflineInventory(language, books))
+            .then(inventory => {
+                if (!cancelled) {
+                    setOfflinePackReady(inventory.ready);
+                }
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setOfflinePackReady(false);
+                }
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [language, location.pathname]);
+
     return (
         <div className="app-shell" data-route={routeKey}>
             <header className="topbar">
                 <div className="brand-lockup">
-                    <Link className="icon-button brand-logo-button" to="/" aria-label={ui.library}>
-                        <img className="brand-logo" src="/icons/icon-192-v3.png" alt="" width={28} height={28} />
+                    <Link className="brand-logo-button" to="/" aria-label={ui.library}>
+                        <img className="brand-logo" src="/icons/icon-192-v4.png" alt="" width={36} height={36} />
                     </Link>
                     <div>
                         <h1>ወንጌል ቅዱስ</h1>
@@ -72,6 +95,11 @@ export default function Layout() {
                 </div>
                 <div className="topbar-actions">
                     {offline ? <span className="status-pill status-offline">{ui.offline}</span> : null}
+                    {!offline && offlinePackReady ? (
+                        <span className="status-pill status-online" title={ui.offlineReady}>
+                            {ui.offlineReadyShort}
+                        </span>
+                    ) : null}
                     {updateReady ? (
                         <button
                             className="install-btn"
@@ -115,9 +143,9 @@ export default function Layout() {
                 <main className="content">
                     <Outlet/>
                     <footer className="app-footer">
-                        <Link to="/about">About</Link>
+                        <Link to="/about">{ui.about}</Link>
                         <span aria-hidden="true">·</span>
-                        <Link to="/privacy">Privacy</Link>
+                        <Link to="/privacy">{ui.privacy}</Link>
                     </footer>
                 </main>
             </div>

@@ -13,6 +13,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import GrowthPage from './pages/GrowthPage';
 import StudyPage from './pages/StudyPage';
 import {useSettingsStore} from './store/settingsStore';
+import {applyThemeVars, getTheme} from './themes';
 
 export default function App() {
     const designTheme = useSettingsStore(state => state.designTheme);
@@ -21,8 +22,9 @@ export default function App() {
     const systemLanguage = useSettingsStore(state => state.systemLanguage);
 
     useEffect(() => {
-        document.documentElement.setAttribute('data-theme', designTheme);
-        document.body.setAttribute('data-theme', designTheme);
+        const theme = getTheme(designTheme);
+        applyThemeVars(document.documentElement, theme);
+        document.body.setAttribute('data-theme', theme.id);
     }, [designTheme]);
 
     useEffect(() => {

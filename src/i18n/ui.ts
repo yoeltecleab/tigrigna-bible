@@ -75,6 +75,10 @@ type UiStrings = {
     bibleLanguage: string;
     systemLanguage: string;
     designTheme: string;
+    themeTierBible: string;
+    themeTierDark: string;
+    themeTierMid: string;
+    themeTierLight: string;
     bibleFontScale: string;
     appFontScale: string;
     matchSizes: string;
@@ -93,6 +97,42 @@ type UiStrings = {
     noSavedYet: string;
     note: string;
     collection: string;
+    about: string;
+    privacy: string;
+    pageNotFound: string;
+    pageNotFoundBody: string;
+    goBackLibrary: string;
+    crossReferences: string;
+    parallelStudyHint: string;
+    inCollections: (names: string) => string;
+    badgeEarned: string;
+    badgeLocked: string;
+    journeyCounts: (bookmarks: number, highlights: number, notes: number) => string;
+    offlinePack: string;
+    offlineReady: string;
+    offlineReadyShort: string;
+    offlinePartial: (cached: number, total: number) => string;
+    offlineEmpty: string;
+    downloadOffline: string;
+    downloadingOffline: string;
+    cancelDownload: string;
+    offlineDownloadDone: string;
+    offlineDownloadFailed: string;
+    exactPhrase: string;
+    caseSensitive: string;
+    loadMore: string;
+    showingOf: (shown: number, total: number) => string;
+    selectVerses: string;
+    doneSelecting: string;
+    copyCitation: string;
+    copied: string;
+    shareSelected: string;
+    selectedCount: (n: number) => string;
+    highlightColor: string;
+    colorGold: string;
+    colorRose: string;
+    colorGreen: string;
+    colorSky: string;
 };
 
 const en: UiStrings = {
@@ -170,6 +210,10 @@ const en: UiStrings = {
     bibleLanguage: 'Bible language',
     systemLanguage: 'System language',
     designTheme: 'Design theme',
+    themeTierBible: 'Bible',
+    themeTierDark: 'Deep dark',
+    themeTierMid: 'Balanced',
+    themeTierLight: 'Light',
     bibleFontScale: 'Bible font scale',
     appFontScale: 'App font scale',
     matchSizes: 'Match sizes',
@@ -187,7 +231,44 @@ const en: UiStrings = {
     resumeReading: 'Resume reading',
     noSavedYet: 'No saved items yet. Add a bookmark, highlight, collection link, or note.',
     note: 'Note',
-    collection: 'Collection'
+    collection: 'Collection',
+    about: 'About',
+    privacy: 'Privacy',
+    pageNotFound: 'Page not found',
+    pageNotFoundBody: 'The link is invalid or no longer available.',
+    goBackLibrary: 'Go back to library',
+    crossReferences: 'Cross references',
+    parallelStudyHint: 'Tigrigna · parallel study',
+    inCollections: names => `In: ${names}`,
+    badgeEarned: 'Earned',
+    badgeLocked: 'Locked',
+    journeyCounts: (bookmarks, highlights, notes) =>
+        `${bookmarks} bookmarks · ${highlights} highlights · ${notes} notes`,
+    offlinePack: 'Offline Bible pack',
+    offlineReady: 'Full Bible ready offline',
+    offlineReadyShort: 'Offline ready',
+    offlinePartial: (cached, total) => `${cached} of ${total} chapters cached`,
+    offlineEmpty: 'Not downloaded yet — needs network once',
+    downloadOffline: 'Download for offline',
+    downloadingOffline: 'Downloading…',
+    cancelDownload: 'Cancel',
+    offlineDownloadDone: 'Offline pack ready',
+    offlineDownloadFailed: 'Download failed. Try again on a stable connection.',
+    exactPhrase: 'Exact phrase',
+    caseSensitive: 'Case sensitive',
+    loadMore: 'Load more',
+    showingOf: (shown, total) => `Showing ${shown} of ${total}`,
+    selectVerses: 'Select verses',
+    doneSelecting: 'Done',
+    copyCitation: 'Copy citation',
+    copied: 'Copied',
+    shareSelected: 'Share selected',
+    selectedCount: n => `${n} selected`,
+    highlightColor: 'Highlight color',
+    colorGold: 'Gold',
+    colorRose: 'Rose',
+    colorGreen: 'Green',
+    colorSky: 'Sky'
 };
 
 const ti: UiStrings = {
@@ -265,6 +346,10 @@ const ti: UiStrings = {
     bibleLanguage: 'ቋንቋ መጽሓፍ ቅዱስ',
     systemLanguage: 'ቋንቋ ስርዓት',
     designTheme: 'ቅርጺ',
+    themeTierBible: 'መጽሓፍ ቅዱስ',
+    themeTierDark: 'ጸሊም',
+    themeTierMid: 'ማእከላይ',
+    themeTierLight: 'ብርሃን',
     bibleFontScale: 'ዓቐን ፊደል መጽሓፍ',
     appFontScale: 'ዓቐን ፊደል መተግበሪ',
     matchSizes: 'ዓቐናት ኣሰማምር',
@@ -282,7 +367,44 @@ const ti: UiStrings = {
     resumeReading: 'ንባብ ቀጽል',
     noSavedYet: 'ዝተሓለወ የለን። መልክዕ፣ ብርሃን፣ እከብ ወይ መዘኻኸሪ ውስኽ።',
     note: 'መዘኻኸሪ',
-    collection: 'እከብ'
+    collection: 'እከብ',
+    about: 'ብዛዕባ',
+    privacy: 'ውሽጣዊ',
+    pageNotFound: 'ገጽ ኣይተረኽበን',
+    pageNotFoundBody: 'እቲ መራኸቢ ቅኑዕ ኣይኮነን ወይ የለን።',
+    goBackLibrary: 'ናብ ቤተ-መጻሕፍቲ ተመለስ',
+    crossReferences: 'ተዛማዲ ጥቕስታት',
+    parallelStudyHint: 'ትግርኛ · ኣነጻጽራዊ ንባብ',
+    inCollections: names => `ኣብ: ${names}`,
+    badgeEarned: 'ተረኺቡ',
+    badgeLocked: 'ተኸሊሉ',
+    journeyCounts: (bookmarks, highlights, notes) =>
+        `${bookmarks} መልክዕ · ${highlights} ብርሃን · ${notes} መዘኻኸሪ`,
+    offlinePack: 'ብዘይ መርበብ መጽሓፍ ቅዱስ',
+    offlineReady: 'ምሉእ መጽሓፍ ቅዱስ ብዘይ መርበብ ድሉው እዩ',
+    offlineReadyShort: 'ብዘይ መርበብ ድሉው',
+    offlinePartial: (cached, total) => `${cached} ካብ ${total} ምዕራፋት ተኸዚኖም`,
+    offlineEmpty: 'ገና ኣይተወርደን — ሓደ ግዜ መርበብ የድሊ',
+    downloadOffline: 'ንብዘይ መርበብ ኣውርድ',
+    downloadingOffline: 'ይወርድ ኣሎ…',
+    cancelDownload: 'ሰርዝ',
+    offlineDownloadDone: 'ብዘይ መርበብ ድሉው እዩ',
+    offlineDownloadFailed: 'ምውራድ ኣይተኽኣለን። ደጊምካ ፈትን።',
+    exactPhrase: 'ትክክለኛ ሓረግ',
+    caseSensitive: 'ዓቢ/ንእሽቶ ፊደል',
+    loadMore: 'ተወሳኺ ኣርእይ',
+    showingOf: (shown, total) => `${shown} ካብ ${total}`,
+    selectVerses: 'ጥቕስታት ምረጽ',
+    doneSelecting: 'ተወድኤ',
+    copyCitation: 'ጥቕሲ ቅዳሕ',
+    copied: 'ተቐዲሑ',
+    shareSelected: 'ዝተመረጸ ኣካፍል',
+    selectedCount: n => `${n} ተመሪጹ`,
+    highlightColor: 'ሕብሪ ብርሃን',
+    colorGold: 'ወርቂ',
+    colorRose: 'ጽጌረዳ',
+    colorGreen: 'ቀጠልያ',
+    colorSky: 'ሰማያዊ'
 };
 
 const catalogs: Record<UiLanguage, UiStrings> = {en, ti};
