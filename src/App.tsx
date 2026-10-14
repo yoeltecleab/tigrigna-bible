@@ -25,6 +25,7 @@ export default function App() {
         const theme = getTheme(designTheme);
         applyThemeVars(document.documentElement, theme);
         document.body.setAttribute('data-theme', theme.id);
+        document.body.dataset.tier = theme.tier;
     }, [designTheme]);
 
     useEffect(() => {

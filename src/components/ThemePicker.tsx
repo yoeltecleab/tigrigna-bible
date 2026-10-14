@@ -15,7 +15,7 @@ export default function ThemePicker({value, onChange, tierLabels}: Props) {
                 return (
                     <div key={tier} className="theme-tier stack-xs">
                         <p className="theme-tier-label">{tierLabels?.[tier] ?? label}</p>
-                        <div className="theme-swatches">
+                        <div className="theme-orb-row">
                             {group.map(t => {
                                 const selected = value === t.id;
                                 return (
@@ -26,11 +26,16 @@ export default function ThemePicker({value, onChange, tierLabels}: Props) {
                                         aria-selected={selected}
                                         aria-label={`${t.label} — ${t.description}`}
                                         title={`${t.label} — ${t.description}`}
-                                        className={selected ? 'theme-swatch theme-swatch-active' : 'theme-swatch'}
-                                        style={{background: t.preview}}
+                                        className={selected ? 'theme-orb theme-orb-active' : 'theme-orb'}
+                                        style={{
+                                            background: t.preview,
+                                            boxShadow: selected
+                                                ? `0 0 0 2px var(--bg), 0 0 0 4px var(--accent), 0 0 22px color-mix(in oklch, ${t.preview} 65%, transparent)`
+                                                : undefined
+                                        }}
                                         onClick={() => onChange(t.id)}
                                     >
-                                        <span className="theme-swatch-name">{t.label}</span>
+                                        <span className="theme-orb-label">{t.label}</span>
                                     </button>
                                 );
                             })}

@@ -52,7 +52,12 @@ export default function GrowthPage() {
                 <p className="muted">
                     {snapshot.apostleRank} · {ui.streakDays(snapshot.streakDays)} · {snapshot.xp} XP
                 </p>
-                <div className="journey-level-ring" style={{background: `radial-gradient(circle at center, rgba(251, 251, 226, 0.95) 55%, transparent 56%), conic-gradient(var(--secondary) 0 ${snapshot.soulProgressPercent * 3.6}deg, rgba(208, 197, 175, 0.8) ${snapshot.soulProgressPercent * 3.6}deg)`}}>
+                <div
+                    className="journey-level-ring"
+                    style={{
+                        background: `radial-gradient(circle at center, color-mix(in oklch, var(--surface) 92%, transparent) 55%, transparent 56%), conic-gradient(var(--primary) 0 ${snapshot.soulProgressPercent * 3.6}deg, color-mix(in oklch, var(--border) 70%, transparent) ${snapshot.soulProgressPercent * 3.6}deg)`
+                    }}
+                >
                     <div>
                         <strong className="journey-big-number">{snapshot.soulProgressPercent}%</strong>
                         <span className="muted">{ui.soulProgress}</span>

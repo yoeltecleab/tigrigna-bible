@@ -1,6 +1,7 @@
 import {Link, NavLink, Outlet, useLocation} from 'react-router-dom';
 import {useEffect, useState} from 'react';
 import InstallPrompt from './InstallPrompt';
+import AmbientScene from './AmbientScene';
 import Icon from './Icon';
 import {useSettingsStore} from '../store/settingsStore';
 import {getUi} from '../i18n/ui';
@@ -83,10 +84,11 @@ export default function Layout() {
 
     return (
         <div className="app-shell" data-route={routeKey}>
+            <AmbientScene />
             <header className="topbar">
                 <div className="brand-lockup">
                     <Link className="brand-logo-button" to="/" aria-label={ui.library}>
-                        <img className="brand-logo" src="/icons/icon-192-v4.png" alt="" width={36} height={36} />
+                        <img className="brand-logo" src="/icons/logo.png" alt="" width={36} height={36} />
                     </Link>
                     <div>
                         <h1>ወንጌል ቅዱስ</h1>
