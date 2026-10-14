@@ -48,11 +48,12 @@ npm run preview
 
 Deep links (`/reader/...`, `/search`, etc.) are handled by the SPA rewrite in `vercel.json`.
 
-## iOS Offline Notes
+## Offline / PWA Notes
 
-1. Open the deployed `https://` URL, then Add to Home Screen.
+1. Open the deployed `https://` URL (or use Install / Add to Home Screen on iOS).
 2. Launch the installed app once while online so the service worker can cache the shell and visited content.
-3. Chapter JSON is cached on demand (not fully precached) to keep install size small.
+3. Chapter JSON and search shards are cached on demand (not fully precached) to keep install size small.
+4. Search uses per-book shards under `public/content/ti/search-shards/` (the old monolith `searchIndex.generated.json` is no longer generated).
 
 ## Legal
 

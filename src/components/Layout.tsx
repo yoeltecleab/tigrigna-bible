@@ -1,32 +1,68 @@
 import {Link, NavLink, Outlet, useLocation} from 'react-router-dom';
+import {useEffect, useState} from 'react';
 import InstallPrompt from './InstallPrompt';
-
-const navItems = [
-    {to: '/', label: 'Library', icon: 'auto_stories'},
-    {to: '/journey', label: 'Journey', icon: 'auto_awesome'},
-    {to: '/settings', label: 'Settings', icon: 'settings'},
-    {to: '/search', label: 'Search', icon: 'history_edu'}
-];
+import Icon from './Icon';
+import {useSettingsStore} from '../store/settingsStore';
+import {getUi} from '../i18n/ui';
 
 export default function Layout() {
     const location = useLocation();
-    const activeItem = navItems.find(item => location.pathname === item.to || location.pathname.startsWith(`${item.to}/`));
-    const routeKey = activeItem?.label.toLocaleLowerCase() ?? 'library';
-    const routeTitle = activeItem?.label ?? 'Library';
+    const systemLanguage = useSettingsStore(state => state.systemLanguage);
+    const ui = getUi(systemLanguage);
+    const [offline, setOffline] = useState(!navigator.onLine);
+    const [updateReady, setUpdateReady] = useState(false);
+
+    const navItems = [
+        {to: '/', label: ui.library, icon: 'auto_stories'},
+        {to: '/growth', label: ui.growth, icon: 'military_tech'},
+        {to: '/journey', label: ui.journey, icon: 'favorite'},
+        {to: '/search', label: ui.search, icon: 'search'}
+    ];
+
+    const activeItem = navItems.find(
+        item => location.pathname === item.to || (item.to !== '/' && location.pathname.startsWith(`${item.to}/`))
+    );
+    const routeKey =
+        activeItem?.to === '/'
+            ? 'library'
+            : activeItem?.to === '/growth'
+                ? 'growth'
+                : activeItem?.to === '/journey'
+                    ? 'journey'
+                    : activeItem?.to === '/search'
+                        ? 'search'
+                        : 'library';
     const routeSubtitle =
-        routeTitle === 'Library'
-            ? 'The Word'
-            : routeTitle === 'Journey'
-                ? 'Saved Verses'
-                : routeTitle === 'Settings'
-                    ? 'App Preferences'
-                    : 'Search the Scriptures';
+        routeKey === 'library'
+            ? ui.theWord
+            : routeKey === 'journey'
+                ? ui.savedVerses
+                : routeKey === 'growth'
+                    ? ui.soulProgress
+                    : ui.searchScriptures;
+
+    useEffect(() => {
+        const onConnectivity = (event: Event) => {
+            const detail = (event as CustomEvent<{offline: boolean}>).detail;
+            setOffline(Boolean(detail?.offline));
+        };
+        const onUpdate = () => setUpdateReady(true);
+
+        window.addEventListener('tb-connectivity', onConnectivity);
+        window.addEventListener('tb-sw-update', onUpdate);
+        setOffline(!navigator.onLine);
+
+        return () => {
+            window.removeEventListener('tb-connectivity', onConnectivity);
+            window.removeEventListener('tb-sw-update', onUpdate);
+        };
+    }, []);
 
     return (
         <div className="app-shell" data-route={routeKey}>
             <header className="topbar">
                 <div className="brand-lockup">
-                    <Link className="icon-button brand-logo-button" to="/" aria-label="Go to library">
+                    <Link className="icon-button brand-logo-button" to="/" aria-label={ui.library}>
                         <img className="brand-logo" src="/icons/icon-192-v3.png" alt="" width={28} height={28} />
                     </Link>
                     <div>
@@ -35,11 +71,21 @@ export default function Layout() {
                     </div>
                 </div>
                 <div className="topbar-actions">
-                    <Link className="icon-button" to="/search" aria-label="Search scriptures">
-                        <span className="material-symbols-outlined">search</span>
-                    </Link>
-                    <Link className="icon-button" to="/settings" aria-label="Open settings">
-                        <span className="material-symbols-outlined">settings</span>
+                    {offline ? <span className="status-pill status-offline">{ui.offline}</span> : null}
+                    {updateReady ? (
+                        <button
+                            className="install-btn"
+                            type="button"
+                            onClick={() => {
+                                window.__tbNeedRefresh?.();
+                                window.location.reload();
+                            }}
+                        >
+                            {ui.reloadToUpdate}
+                        </button>
+                    ) : null}
+                    <Link className="icon-button mobile-settings" to="/settings" aria-label={ui.settings}>
+                        <Icon name="settings" size={20} />
                     </Link>
                     <InstallPrompt/>
                 </div>
@@ -54,15 +100,19 @@ export default function Layout() {
                             end={item.to === '/'}
                             className={({isActive}) => (isActive ? 'rail-item active' : 'rail-item')}
                             aria-label={item.label}
+                            aria-current={location.pathname === item.to ? 'page' : undefined}
                         >
-                            <span className="material-symbols-outlined">{item.icon}</span>
-                            <span>{item.label}</span>
+                            <Icon name={item.icon} size={20} />
+                            <span className="rail-label">{item.label}</span>
                         </NavLink>
                     ))}
+                    <Link className="rail-item rail-settings" to="/settings" aria-label={ui.settings}>
+                        <Icon name="settings" size={20} />
+                        <span className="rail-label">{ui.settings}</span>
+                    </Link>
                 </aside>
 
                 <main className="content">
-                    <div className="route-crumb">{routeTitle}</div>
                     <Outlet/>
                     <footer className="app-footer">
                         <Link to="/about">About</Link>
@@ -79,8 +129,9 @@ export default function Layout() {
                         to={item.to}
                         end={item.to === '/'}
                         className={({isActive}) => (isActive ? 'tab active' : 'tab')}
+                        aria-current={location.pathname === item.to || (item.to !== '/' && location.pathname.startsWith(item.to)) ? 'page' : undefined}
                     >
-                        <span className="material-symbols-outlined">{item.icon}</span>
+                        <Icon name={item.icon} size={22} />
                         <span className="tab-label">{item.label}</span>
                     </NavLink>
                 ))}

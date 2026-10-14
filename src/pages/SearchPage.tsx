@@ -5,9 +5,13 @@ import {Book, SearchVerse} from '../types/bible';
 import {useSettingsStore} from '../store/settingsStore';
 import {useSavedStore} from '../store/savedStore';
 import {buildSharePayload, readerShareUrl} from '../lib/site';
+import {getUi} from '../i18n/ui';
+import Icon from '../components/Icon';
 
 export default function SearchPage() {
     const language = useSettingsStore(state => state.language);
+    const systemLanguage = useSettingsStore(state => state.systemLanguage);
+    const ui = getUi(systemLanguage);
     const recentSearches = useSettingsStore(state => state.recentSearches);
     const addRecentSearch = useSettingsStore(state => state.addRecentSearch);
     const clearRecentSearches = useSettingsStore(state => state.clearRecentSearches);
@@ -22,7 +26,9 @@ export default function SearchPage() {
     const requestIdRef = useRef(0);
     const toggleBookmark = useSavedStore(state => state.toggleBookmark);
 
-    const popularTags = ['Wisdom', 'Compassion', 'Strength', 'Grace', 'Prophecy', 'Parables'];
+    const popularTags = systemLanguage === 'ti'
+        ? ['ፍቕሪ', 'ጸሎት', 'ሰላም', 'እምነት', 'ጥበብ', 'ምሕረት']
+        : ['ፍቕሪ', 'ጸሎት', 'ሰላም', 'እምነት', 'ጥበብ', 'ምሕረት'];
 
     useEffect(() => {
         void loadBooks(language).then(setBooks);
@@ -128,23 +134,27 @@ export default function SearchPage() {
     return (
         <section className="stack-lg">
             <div className="panel hero-panel stack-sm">
-                <p className="eyebrow">Search</p>
-                <h2>Seek wisdom in the sacred text.</h2>
-                <p className="muted">Offline search with fast relevance ranking and direct chapter opening.</p>
-                <div className="search-input-wrap" onKeyDown={event => {
-                    if (event.key === 'Enter') {
-                        runSearch(query);
-                    }
-                }}>
-                    <span className="material-symbols-outlined">search</span>
+                <p className="eyebrow">{ui.search}</p>
+                <h2>{ui.seekingWisdom}</h2>
+                <p className="muted">{ui.offlineSearchHint}</p>
+                <div
+                    className="search-input-wrap"
+                    onKeyDown={event => {
+                        if (event.key === 'Enter') {
+                            runSearch(query);
+                        }
+                    }}
+                >
+                    <Icon name="search" size={20} />
                     <input
                         className="search-input"
                         value={query}
                         onChange={event => setQuery(event.target.value)}
-                        placeholder="Seek wisdom in the sacred text"
+                        placeholder={ui.seekingWisdom}
+                        aria-label={ui.search}
                     />
-                    <button className="icon-button mini" type="button" aria-label="Save search" onClick={() => runSearch(query)}>
-                        <span className="material-symbols-outlined">save</span>
+                    <button className="icon-button mini" type="button" aria-label={ui.search} onClick={() => runSearch(query)}>
+                        <Icon name="search" size={18} />
                     </button>
                 </div>
                 <div className="chips-row">
@@ -153,7 +163,7 @@ export default function SearchPage() {
                         type="button"
                         onClick={() => setSelectedBooks([])}
                     >
-                        All books
+                        {ui.allBooks}
                     </button>
                     {books.map(book => (
                         <button
@@ -171,31 +181,26 @@ export default function SearchPage() {
             <div className="search-grid">
                 <div className="panel search-side-card">
                     <div className="section-header">
-                        <p className="eyebrow">Recent searches</p>
+                        <p className="eyebrow">{ui.recentSearches}</p>
                         {recentSearches.length > 0 ? (
                             <button className="link-btn" type="button" onClick={clearRecentSearches}>
-                                Clear
+                                {ui.clear}
                             </button>
                         ) : null}
                     </div>
                     <div className="stack-sm">
-                        {recentSearches.length === 0 ? <p className="muted">Your recent queries will appear here.</p> : null}
+                        {recentSearches.length === 0 ? <p className="muted">—</p> : null}
                         {recentSearches.map(item => (
-                            <button
-                                key={item}
-                                type="button"
-                                className="history-item"
-                                onClick={() => runSearch(item)}
-                            >
+                            <button key={item} type="button" className="history-item" onClick={() => runSearch(item)}>
                                 <span>{item}</span>
-                                <span className="material-symbols-outlined">history</span>
+                                <Icon name="history" size={16} />
                             </button>
                         ))}
                     </div>
                 </div>
 
                 <div className="panel search-tags-card">
-                    <p className="eyebrow">Popular tags</p>
+                    <p className="eyebrow">{ui.popularTags}</p>
                     <div className="tag-grid">
                         {popularTags.map((tag, index) => (
                             <button
@@ -214,94 +219,83 @@ export default function SearchPage() {
             <div className="stack-sm">
                 <div className="section-header">
                     <div>
-                        <p className="eyebrow">Results</p>
-                        <h3>{query.trim() ? `Found ${visibleResults.length} instances` : 'Search results'}</h3>
+                        <p className="eyebrow">{ui.results}</p>
+                        <h3>{query.trim() ? ui.foundInstances(visibleResults.length) : ui.results}</h3>
                         {selectedBooks.length > 0 ? (
-                            <p className="meta">Filtering {selectedBooks.length} selected books</p>
+                            <p className="meta">
+                                {selectedBooks.length} {ui.book}
+                            </p>
                         ) : null}
                     </div>
                     <label className="stack-xs sort-select-wrap">
-                        <span className="muted">Sort by</span>
+                        <span className="muted">{ui.sortBy}</span>
                         <select
                             className="input"
                             value={resultSort}
                             onChange={event => setResultSort(event.target.value as 'relevance' | 'book')}
                         >
-                            <option value="relevance">Relevance</option>
-                            <option value="book">Book</option>
+                            <option value="relevance">{ui.relevance}</option>
+                            <option value="book">{ui.book}</option>
                         </select>
                     </label>
                 </div>
 
-                {isSearching && <p className="muted">Searching...</p>}
+                {isSearching && <p className="muted">{ui.searching}</p>}
 
-                {visibleResults.slice(0, 50).map((result, index) => (
-                    <div className="stack-sm" key={result.key}>
-                        <article className="panel scroll-result-card">
-                            <div className="scroll-result-head">
-                                <div>
-                                    <p className="scroll-ref">
-                                        {(bookTitleMap.get(result.bookId) ?? result.bookId)} {result.chapter}:{result.verse}
-                                    </p>
-                                    <p className="meta">{result.bookId} • Verse {result.verse}</p>
-                                </div>
-                                <div className="row gap-sm">
-                                    <button
-                                        className="icon-button mini"
-                                        type="button"
-                                        aria-label="Bookmark verse"
-                                        onClick={() =>
-                                            toggleBookmark({
-                                                key: result.key,
-                                                bookId: result.bookId,
-                                                chapter: result.chapter,
-                                                verse: result.verse,
-                                                text: result.text
-                                            })
-                                        }
-                                    >
-                                        <span className="material-symbols-outlined">bookmark</span>
+                {visibleResults.slice(0, 50).map(result => (
+                    <article className="panel scroll-result-card" key={result.key}>
+                        <div className="scroll-result-head">
+                            <div>
+                                <p className="scroll-ref">
+                                    {(bookTitleMap.get(result.bookId) ?? result.bookId)} {result.chapter}:{result.verse}
+                                </p>
+                            </div>
+                            <div className="row gap-sm">
+                                <button
+                                    className="icon-button mini"
+                                    type="button"
+                                    aria-label={ui.bookmark}
+                                    onClick={() =>
+                                        toggleBookmark({
+                                            key: result.key,
+                                            bookId: result.bookId,
+                                            chapter: result.chapter,
+                                            verse: result.verse,
+                                            text: result.text
+                                        })
+                                    }
+                                >
+                                    <Icon name="bookmark" size={18} />
                                     </button>
                                     <button
                                         className="icon-button mini"
                                         type="button"
-                                        aria-label="Share verse"
+                                        aria-label={ui.share}
                                         onClick={() => void shareVerse(result)}
                                     >
-                                        <span className="material-symbols-outlined">share</span>
-                                    </button>
-                                </div>
+                                        <Icon name="share" size={18} />
+                                </button>
                             </div>
-                            <p className="scroll-verse">{result.text}</p>
-                            <div className="row gap-sm wrap">
-                                <Link
-                                    className="btn btn-primary"
-                                    to={`/reader/${result.bookId}/${result.chapter}`}
-                                    state={{targetVerse: result.verse, source: 'search'}}
-                                    onClick={() => {
-                                        if (query.trim()) {
-                                            addRecentSearch(query);
-                                        }
-                                    }}
-                                >
-                                    Read chapter
-                                </Link>
-                            </div>
-                        </article>
-
-                        {index === 0 ? (
-                            <article className="panel scroll-feature-card">
-                                <p className="eyebrow">Historical context</p>
-                                <h4>The Gospel of John: Ancient Commentary</h4>
-                                <p className="muted">
-                                    Explore the 6th-century Garima tradition and the interpretive heritage of the Word.
-                                </p>
-                            </article>
-                        ) : null}
-                    </div>
+                        </div>
+                        <p className="scroll-verse verse-text">{result.text}</p>
+                        <div className="row gap-sm wrap">
+                            <Link
+                                className="btn btn-primary"
+                                to={`/reader/${result.bookId}/${result.chapter}`}
+                                state={{targetVerse: result.verse, source: 'search'}}
+                                onClick={() => {
+                                    if (query.trim()) {
+                                        addRecentSearch(query);
+                                    }
+                                }}
+                            >
+                                {ui.readChapter}
+                            </Link>
+                        </div>
+                    </article>
                 ))}
 
-                {query && visibleResults.length === 0 && <p>No results.</p>}
+                {query && !isSearching && visibleResults.length === 0 ? <p>{ui.noResults}</p> : null}
             </div>
         </section>
     );

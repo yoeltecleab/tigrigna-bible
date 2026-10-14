@@ -113,7 +113,13 @@ for (const lang of languageDirs) {
         }
     }
 
-    const dailyVerse = searchIndex.length > 0 ? searchIndex[0] : null;
+    // Prefer Genesis 1:1 (ZEFTRET) for a stable daily-verse seed; clients can rotate by day.
+    const genesisSeed =
+        searchIndex.find(item => item.bookId === 'ZEFTRET' && item.chapter === 1 && item.verse === 1) ??
+        searchIndex.find(item => item.bookId === 'ZEFTRET' && item.chapter === 1) ??
+        searchIndex.find(item => item.bookId === books[0]?.id) ??
+        (searchIndex.length > 0 ? searchIndex[0] : null);
+
     const shardsDir = path.join(langDir, 'search-shards');
     fs.mkdirSync(shardsDir, {recursive: true});
     for (const [bookId, verses] of searchByBook.entries()) {
@@ -121,12 +127,17 @@ for (const lang of languageDirs) {
         fs.writeFileSync(path.join(shardsDir, shardFile), JSON.stringify(verses), 'utf8');
     }
 
-    fs.writeFileSync(path.join(langDir, 'books.generated.json'), JSON.stringify(books), 'utf8');
-    fs.writeFileSync(path.join(langDir, 'searchIndex.generated.json'), JSON.stringify(searchIndex), 'utf8');
-    fs.writeFileSync(path.join(langDir, 'readerIndex.generated.json'), JSON.stringify(readerIndex), 'utf8');
-    fs.writeFileSync(path.join(langDir, 'dailyVerse.generated.json'), JSON.stringify(dailyVerse), 'utf8');
+    // Remove legacy monolith search index (~9MB) — runtime search uses per-book shards only.
+    const legacySearchIndex = path.join(langDir, 'searchIndex.generated.json');
+    if (fs.existsSync(legacySearchIndex)) {
+        fs.unlinkSync(legacySearchIndex);
+    }
 
-    console.log(`[${lang}] generated ${books.length} books and ${searchIndex.length} searchable verses`);
+    fs.writeFileSync(path.join(langDir, 'books.generated.json'), JSON.stringify(books), 'utf8');
+    fs.writeFileSync(path.join(langDir, 'readerIndex.generated.json'), JSON.stringify(readerIndex), 'utf8');
+    fs.writeFileSync(path.join(langDir, 'dailyVerse.generated.json'), JSON.stringify(genesisSeed), 'utf8');
+
+    console.log(`[${lang}] generated ${books.length} books, ${searchByBook.size} shards, ${searchIndex.length} searchable verses`);
     if (invalidFiles.length > 0) {
         console.warn(`[${lang}] skipped ${invalidFiles.length} malformed files`);
     }

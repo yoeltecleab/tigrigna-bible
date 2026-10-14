@@ -1,14 +1,38 @@
 import {registerSW} from 'virtual:pwa-register';
 
+declare global {
+    interface Window {
+        __tbNeedRefresh?: () => void;
+        __tbOffline?: boolean;
+    }
+}
+
+const emitOfflineStatus = () => {
+    window.__tbOffline = !navigator.onLine;
+    window.dispatchEvent(new CustomEvent('tb-connectivity', {detail: {offline: !navigator.onLine}}));
+};
+
+window.addEventListener('online', emitOfflineStatus);
+window.addEventListener('offline', emitOfflineStatus);
+emitOfflineStatus();
+
 if (window.isSecureContext) {
-    registerSW({
+    const updateSW = registerSW({
         immediate: true,
+        onNeedRefresh() {
+            window.__tbNeedRefresh = () => {
+                void updateSW(true);
+            };
+            window.dispatchEvent(new CustomEvent('tb-sw-update'));
+        },
+        onOfflineReady() {
+            console.info('[PWA] App shell ready for offline use');
+        },
         onRegisteredSW(swUrl: string, registration: ServiceWorkerRegistration | undefined) {
             if (!registration) {
                 return;
             }
 
-            // Force a freshness check shortly after load so icon/manifest updates land quickly.
             window.setTimeout(() => {
                 void registration.update();
             }, 2500);
@@ -17,24 +41,7 @@ if (window.isSecureContext) {
                 void registration.update();
             }, 60 * 60 * 1000);
 
-            // If a waiting worker exists (new deploy), activate it without requiring a manual refresh.
-            if (registration.waiting) {
-                registration.waiting.postMessage({type: 'SKIP_WAITING'});
-            }
-
-            registration.addEventListener('updatefound', () => {
-                const installing = registration.installing;
-                if (!installing) {
-                    return;
-                }
-
-                installing.addEventListener('statechange', () => {
-                    if (installing.state === 'installed' && navigator.serviceWorker.controller) {
-                        // New content available — reload once so the installed PWA picks up new icons/manifest.
-                        console.info('[PWA] Updated service worker from', swUrl);
-                    }
-                });
-            });
+            console.info('[PWA] Registered', swUrl);
         }
     });
 } else {

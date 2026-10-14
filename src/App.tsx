@@ -10,12 +10,15 @@ import SettingsPage from './pages/SettingsPage';
 import AboutPage from './pages/AboutPage';
 import PrivacyPage from './pages/PrivacyPage';
 import NotFoundPage from './pages/NotFoundPage';
+import GrowthPage from './pages/GrowthPage';
+import StudyPage from './pages/StudyPage';
 import {useSettingsStore} from './store/settingsStore';
 
 export default function App() {
     const designTheme = useSettingsStore(state => state.designTheme);
     const appFontScale = useSettingsStore(state => state.appFontScale);
     const showDecorativeCrosses = useSettingsStore(state => state.showDecorativeCrosses);
+    const systemLanguage = useSettingsStore(state => state.systemLanguage);
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', designTheme);
@@ -25,6 +28,10 @@ export default function App() {
     useEffect(() => {
         document.documentElement.style.setProperty('--app-font-scale', String(appFontScale));
     }, [appFontScale]);
+
+    useEffect(() => {
+        document.documentElement.lang = systemLanguage === 'ti' ? 'ti' : 'en';
+    }, [systemLanguage]);
 
     useEffect(() => {
         if (showDecorativeCrosses) {
@@ -40,18 +47,18 @@ export default function App() {
             <Route element={<Layout/>}>
                 <Route path="/" element={<HomePage/>}/>
                 <Route path="/journey" element={<SavedPage/>}/>
+                <Route path="/growth" element={<GrowthPage/>}/>
                 <Route path="/settings" element={<SettingsPage/>}/>
                 <Route path="/search" element={<SearchPage/>}/>
                 <Route path="/books/:bookId" element={<BooksPage/>}/>
                 <Route path="/reader/:bookId/:chapter" element={<ReaderPage/>}/>
-                <Route path="/saved" element={<SavedPage/>}/>
+                <Route path="/saved" element={<Navigate to="/journey" replace/>}/>
                 <Route path="/about" element={<AboutPage/>}/>
                 <Route path="/privacy" element={<PrivacyPage/>}/>
-                <Route path="/growth" element={<Navigate to="/settings" replace/>}/>
                 <Route path="/scrolls" element={<Navigate to="/search" replace/>}/>
-                <Route path="/study" element={<Navigate to="/" replace/>}/>
+                <Route path="/study" element={<StudyPage/>}/>
                 <Route path="/library" element={<Navigate to="/" replace/>}/>
-                <Route path="/study-redirect" element={<Navigate to="/" replace/>}/>
+                <Route path="/study-redirect" element={<Navigate to="/study" replace/>}/>
             </Route>
             <Route path="*" element={<NotFoundPage/>}/>
         </Routes>

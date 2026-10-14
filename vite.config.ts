@@ -32,8 +32,6 @@ export default defineConfig({
                 `icons/icon-512-${ICON_VERSION}.png`,
                 `icons/icon-192-maskable-${ICON_VERSION}.png`,
                 `icons/icon-512-maskable-${ICON_VERSION}.png`,
-                'fonts/material-symbols.css',
-                'fonts/material-symbols-outlined-subset.ttf',
                 'og/og-image.png',
                 'robots.txt',
                 'sitemap.xml'

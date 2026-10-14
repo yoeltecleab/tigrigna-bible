@@ -5,6 +5,8 @@ import {Book, ChapterRow, isVerse, SearchVerse} from '../types/bible';
 import {useSettingsStore} from '../store/settingsStore';
 import {useSavedStore} from '../store/savedStore';
 import {buildSharePayload, readerShareUrl} from '../lib/site';
+import {getUi} from '../i18n/ui';
+import Icon from '../components/Icon';
 
 type ReaderLocationState = {
     targetVerse?: number;
@@ -72,17 +74,20 @@ export default function ReaderPage() {
     const navigate = useNavigate();
     const numericChapter = Number(chapter);
     const language = useSettingsStore(state => state.language);
+    const systemLanguage = useSettingsStore(state => state.systemLanguage);
     const fontScale = useSettingsStore(state => state.fontScale);
     const setFontScale = useSettingsStore(state => state.setFontScale);
     const setLastReading = useSettingsStore(state => state.setLastReading);
+    const ui = getUi(systemLanguage);
 
     const [books, setBooks] = useState<Book[]>([]);
-    const [bookTitle, setBookTitle] = useState(bookId);
-    const [chapterCount, setChapterCount] = useState(1);
+    const [bookTitle, setBookTitle] = useState('');
+    const [chapterCount, setChapterCount] = useState(0);
     const [chapterRows, setChapterRows] = useState<ChapterRow[]>([]);
     const [compareRows, setCompareRows] = useState<ChapterRow[]>([]);
     const [readerIndex, setReaderIndex] = useState<SearchVerse[]>([]);
     const [isLoadingChapter, setIsLoadingChapter] = useState(true);
+    const [isLoadingBooks, setIsLoadingBooks] = useState(true);
     const [lineHeightScale, setLineHeightScale] = useState(1.75);
     const [compareMode, setCompareMode] = useState(false);
     const [showReaderTools, setShowReaderTools] = useState(false);
@@ -91,17 +96,21 @@ export default function ReaderPage() {
     const [compareBookId, setCompareBookId] = useState(bookId);
     const [compareChapter, setCompareChapter] = useState(numericChapter);
     const [selectedVerseKey, setSelectedVerseKey] = useState<string | null>(null);
+    const [activeParallelVerse, setActiveParallelVerse] = useState<number | null>(null);
     const [noteDraft, setNoteDraft] = useState('');
     const [newCollectionName, setNewCollectionName] = useState('');
     const [highlightedVerse, setHighlightedVerse] = useState<number | null>(null);
     const touchStartX = useRef<number | null>(null);
     const highlightTimeout = useRef<number | null>(null);
     const lastJumpRef = useRef('');
+    const modalRef = useRef<HTMLDivElement | null>(null);
+    const readerIndexLoaded = useRef(false);
 
     const toggleBookmark = useSavedStore(state => state.toggleBookmark);
     const toggleHighlight = useSavedStore(state => state.toggleHighlight);
     const notes = useSavedStore(state => state.notes);
     const collections = useSavedStore(state => state.collections);
+    const collectionItems = useSavedStore(state => state.collectionItems);
     const createCollection = useSavedStore(state => state.createCollection);
     const addToCollection = useSavedStore(state => state.addToCollection);
     const removeFromCollection = useSavedStore(state => state.removeFromCollection);
@@ -110,24 +119,42 @@ export default function ReaderPage() {
     const isInCollection = useSavedStore(state => state.isInCollection);
     const isBookmarked = useSavedStore(state => state.isBookmarked);
     const isHighlighted = useSavedStore(state => state.isHighlighted);
+    const versesState = useSavedStore(state => state.verses);
 
     useEffect(() => {
-        void loadBooks(language).then(books => {
-            setBooks(books);
-            const book = books.find(item => item.id === bookId);
+        setIsLoadingBooks(true);
+        void loadBooks(language).then(bookList => {
+            setBooks(bookList);
+            const book = bookList.find(item => item.id === bookId);
             if (book) {
                 setBookTitle(book.title);
                 setChapterCount(book.chaptersNum);
+            } else {
+                setBookTitle(bookId);
+                setChapterCount(1);
             }
+            setIsLoadingBooks(false);
         });
+    }, [language, bookId]);
 
+    useEffect(() => {
         setIsLoadingChapter(true);
-        void Promise.all([loadChapterFile(language, bookId, numericChapter), loadReaderIndex(language)]).then(([chapterFile, index]) => {
+        void loadChapterFile(language, bookId, numericChapter).then(chapterFile => {
             setChapterRows(Array.isArray(chapterFile?.chapters) ? chapterFile!.chapters : []);
-            setReaderIndex(index);
             setIsLoadingChapter(false);
         });
     }, [language, bookId, numericChapter]);
+
+    useEffect(() => {
+        if (readerIndexLoaded.current && readerIndex.length > 0) {
+            return;
+        }
+
+        void loadReaderIndex(language).then(index => {
+            setReaderIndex(index);
+            readerIndexLoaded.current = true;
+        });
+    }, [language, readerIndex.length]);
 
     useEffect(() => {
         setCompareBookId(bookId);
@@ -156,14 +183,6 @@ export default function ReaderPage() {
     }, [bookId, numericChapter, setLastReading]);
 
     useEffect(() => {
-        const media = window.matchMedia('(min-width: 1000px)');
-        const update = () => setCompareMode(media.matches);
-        update();
-        media.addEventListener('change', update);
-        return () => media.removeEventListener('change', update);
-    }, []);
-
-    useEffect(() => {
         return () => {
             if (highlightTimeout.current) {
                 window.clearTimeout(highlightTimeout.current);
@@ -171,9 +190,41 @@ export default function ReaderPage() {
         };
     }, []);
 
+    useEffect(() => {
+        if (!selectedVerseKey) {
+            return;
+        }
+
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                setSelectedVerseKey(null);
+            }
+        };
+
+        window.addEventListener('keydown', onKeyDown);
+        const previouslyFocused = document.activeElement as HTMLElement | null;
+        modalRef.current?.querySelector<HTMLElement>('button, [href], input, textarea, select')?.focus();
+
+        return () => {
+            window.removeEventListener('keydown', onKeyDown);
+            previouslyFocused?.focus?.();
+        };
+    }, [selectedVerseKey]);
+
     const verses = useMemo(() => chapterRows.filter(isVerse), [chapterRows]);
     const compareVerses = useMemo(() => compareRows.filter(isVerse), [compareRows]);
     const booksMap = useMemo(() => new Map(books.map(book => [book.id, book])), [books]);
+    const bookmarkedKeys = useMemo(
+        () => new Set(versesState.filter(item => item.kind === 'bookmark').map(item => item.key)),
+        [versesState]
+    );
+    const highlightedKeys = useMemo(
+        () => new Set(versesState.filter(item => item.kind === 'highlight').map(item => item.key)),
+        [versesState]
+    );
+    const collectionKeys = useMemo(() => new Set(collectionItems.map(item => item.key)), [collectionItems]);
+    const noteKeySet = useMemo(() => new Set(notes.map(note => note.key)), [notes]);
+
     const verseEntries = useMemo(
         () =>
             verses.map(verse => {
@@ -192,12 +243,12 @@ export default function ReaderPage() {
                 const parsed = parseVerseDisplay(verse.verseid, verse.versetext);
                 return {
                     key: `parallel-${verse.verseid}`,
+                    verseId: verse.verseid,
                     ...parsed
                 };
             }),
         [compareVerses]
     );
-    const noteKeySet = useMemo(() => new Set(notes.map(note => note.key)), [notes]);
     const selectedVerse = useMemo(() => verseEntries.find(entry => entry.key === selectedVerseKey) ?? null, [verseEntries, selectedVerseKey]);
     const selectedVerseNote = useMemo(
         () => (selectedVerseKey ? notes.find(note => note.key === selectedVerseKey) ?? null : null),
@@ -250,6 +301,7 @@ export default function ReaderPage() {
         lastJumpRef.current = jumpId;
         targetEl.scrollIntoView({behavior: 'smooth', block: 'center'});
         setHighlightedVerse(targetVerse);
+        setActiveParallelVerse(targetVerse);
 
         if (highlightTimeout.current) {
             window.clearTimeout(highlightTimeout.current);
@@ -288,6 +340,11 @@ export default function ReaderPage() {
         }
 
         goToChapter(numericChapter - 1);
+    };
+
+    const selectVerse = (key: string, verseId: number) => {
+        setSelectedVerseKey(key);
+        setActiveParallelVerse(verseId);
     };
 
     const applyCollection = (collectionId: string) => {
@@ -379,24 +436,50 @@ export default function ReaderPage() {
         setNoteDraft('');
     };
 
+    const verseRowClass = (key: string, start: number, end: number) => {
+        const classes = ['verse-row'];
+        if (highlightedVerse != null && highlightedVerse >= start && highlightedVerse <= end) {
+            classes.push('verse-row-highlighted');
+        }
+        if (activeParallelVerse != null && activeParallelVerse >= start && activeParallelVerse <= end) {
+            classes.push('verse-row-active');
+        }
+        if (bookmarkedKeys.has(key)) {
+            classes.push('verse-row-bookmarked');
+        }
+        if (highlightedKeys.has(key)) {
+            classes.push('verse-row-saved-highlight');
+        }
+        if (collectionKeys.has(key)) {
+            classes.push('verse-row-collected');
+        }
+        if (noteKeySet.has(key)) {
+            classes.push('verse-row-noted');
+        }
+        return classes.join(' ');
+    };
+
     return (
         <section className="stack-lg">
             <div className="reader-shell stack-lg">
                 <header className="panel hero-panel reader-hero stack-sm">
                     <div className="section-header">
                         <div>
-                            <p className="eyebrow">Immersive reader</p>
-                            <h2>Compare mode</h2>
+                            <p className="eyebrow">{ui.immersiveReader}</p>
+                            <h2>
+                                {isLoadingBooks || !bookTitle ? '…' : `${bookTitle} ${numericChapter}`}
+                            </h2>
                             <p className="muted">
-                                Parallel reading for {bookTitle}, chapter {numericChapter}.
+                                {chapterCount > 0 ? ui.chapterOf(numericChapter, chapterCount) : '…'}
                             </p>
                         </div>
                         <button
                             className={compareMode ? 'btn btn-primary' : 'btn'}
                             type="button"
                             onClick={() => setCompareMode(value => !value)}
+                            aria-pressed={compareMode}
                         >
-                            {compareMode ? 'Dual pane on' : 'Dual pane off'}
+                            {compareMode ? ui.dualPaneOn : ui.dualPaneOff}
                         </button>
                     </div>
 
@@ -406,14 +489,14 @@ export default function ReaderPage() {
                         onClick={() => setShowReaderTools(value => !value)}
                         aria-expanded={showReaderTools}
                     >
-                        Display settings
-                        <span className="material-symbols-outlined">{showReaderTools ? 'expand_less' : 'expand_more'}</span>
+                        {ui.displaySettings}
+                        <Icon name={showReaderTools ? 'expand_less' : 'expand_more'} size={18} />
                     </button>
 
                     {showReaderTools ? (
                         <div className="reader-settings-grid">
                             <label className="stack-xs reader-slider">
-                                <span>Text size</span>
+                                <span>{ui.textSize}</span>
                                 <input
                                     type="range"
                                     min={0.9}
@@ -424,7 +507,7 @@ export default function ReaderPage() {
                                 />
                             </label>
                             <label className="stack-xs reader-slider">
-                                <span>Spacing</span>
+                                <span>{ui.spacing}</span>
                                 <input
                                     type="range"
                                     min={1.4}
@@ -439,7 +522,7 @@ export default function ReaderPage() {
 
                     <div className="row gap-sm wrap">
                         <Link className="btn" to={`/books/${bookId}`}>
-                            Chapters
+                            {ui.chapters}
                         </Link>
                     </div>
                 </header>
@@ -451,39 +534,41 @@ export default function ReaderPage() {
                 >
                     <article className="panel stack-sm reader-pane verse-pane-main">
                         <header className="stack-xs">
-                            <p className="eyebrow">TI ወንጌል</p>
+                            <p className="eyebrow eyebrow-primary">{ui.primaryPane}</p>
                             <h3>
                                 {bookTitle} {numericChapter}
                             </h3>
-                            <p className="muted">Chapter {numericChapter} of {chapterCount}</p>
                         </header>
 
                         <div className="stack-sm verse-stack">
                             {isLoadingChapter &&
-                                Array.from({length: 8}).map((_, index) => <div className="verse-row skeleton"
-                                                                               key={`verse-skeleton-${index}`}/>)}
+                                Array.from({length: 8}).map((_, index) => (
+                                    <div className="verse-row skeleton" key={`verse-skeleton-${index}`}/>
+                                ))}
                             {verseEntries.map(verse => {
-                                const hasCollection = collections.some(collection => isInCollection(collection.id, verse.key));
+                                const hasCollection = collectionKeys.has(verse.key);
                                 const hasNote = noteKeySet.has(verse.key);
+                                const hasBookmark = bookmarkedKeys.has(verse.key);
+                                const hasHighlight = highlightedKeys.has(verse.key);
                                 return (
                                     <article
-                                        className={
-                                            highlightedVerse != null && highlightedVerse >= verse.start && highlightedVerse <= verse.end
-                                                ? 'verse-row verse-row-highlighted'
-                                                : 'verse-row'
-                                        }
+                                        className={verseRowClass(verse.key, verse.start, verse.end)}
                                         key={verse.key}
                                         data-verse-key={verse.key}
-                                        onClick={() => setSelectedVerseKey(verse.key)}
+                                        onClick={() => selectVerse(verse.key, verse.verse.verseid)}
                                     >
                                         <span className="verse-number">{verse.label}</span>
-                                        <p style={{fontSize: `${fontScale}rem`, lineHeight: lineHeightScale}}>{verse.text}</p>
-                                        {hasCollection || hasNote ? <div className="row gap-sm wrap">
-                                            {hasCollection ? (
-                                                <span className="chip chip-collection">Collection</span>
-                                            ) : null}
-                                            {hasNote ? <span className="chip">Note</span> : null}
-                                        </div> : null}
+                                        <p className="verse-body" style={{fontSize: `${fontScale}rem`, lineHeight: lineHeightScale}}>
+                                            {verse.text}
+                                        </p>
+                                        {hasBookmark || hasHighlight || hasCollection || hasNote ? (
+                                            <div className="verse-marker-dots" aria-hidden="true">
+                                                {hasBookmark ? <span className="dot dot-bookmark"/> : null}
+                                                {hasHighlight ? <span className="dot dot-highlight"/> : null}
+                                                {hasCollection ? <span className="dot dot-collection"/> : null}
+                                                {hasNote ? <span className="dot dot-note"/> : null}
+                                            </div>
+                                        ) : null}
                                     </article>
                                 );
                             })}
@@ -493,9 +578,11 @@ export default function ReaderPage() {
                     {compareMode ? (
                         <article className="panel stack-sm reader-pane reader-pane-secondary">
                             <header className="stack-xs">
-                                <p className="eyebrow">EN English (KJV)</p>
-                                <h3>{(booksMap.get(compareBookId)?.title ?? compareBookId)} {compareChapter}</h3>
-                                <p className="muted">Parallel study pane</p>
+                                <p className="eyebrow eyebrow-secondary">{ui.parallelPane}</p>
+                                <h3>
+                                    {(booksMap.get(compareBookId)?.title ?? compareBookId)} {compareChapter}
+                                </h3>
+                                <p className="muted">Tigrigna · parallel study</p>
                             </header>
 
                             <button
@@ -504,14 +591,14 @@ export default function ReaderPage() {
                                 onClick={() => setShowComparePanel(value => !value)}
                                 aria-expanded={showComparePanel}
                             >
-                                Jump and compare
-                                <span className="material-symbols-outlined">{showComparePanel ? 'expand_less' : 'expand_more'}</span>
+                                {ui.jumpAndCompare}
+                                <Icon name={showComparePanel ? 'expand_less' : 'expand_more'} size={18} />
                             </button>
 
                             {showComparePanel ? (
                                 <div className="compare-controls">
                                     <label className="stack-xs">
-                                        <span className="muted">Compare book</span>
+                                        <span className="muted">{ui.compareBook}</span>
                                         <select
                                             className="input"
                                             value={compareBookId}
@@ -530,7 +617,7 @@ export default function ReaderPage() {
                                         </select>
                                     </label>
                                     <label className="stack-xs">
-                                        <span className="muted">Compare chapter</span>
+                                        <span className="muted">{ui.compareChapter}</span>
                                         <select
                                             className="input"
                                             value={compareChapter}
@@ -538,7 +625,7 @@ export default function ReaderPage() {
                                         >
                                             {Array.from({length: compareChapterCount}, (_, index) => index + 1).map(value => (
                                                 <option key={value} value={value}>
-                                                    Chapter {value}
+                                                    {value}
                                                 </option>
                                             ))}
                                         </select>
@@ -548,8 +635,22 @@ export default function ReaderPage() {
 
                             <div className="stack-sm verse-stack">
                                 {compareVerseEntries.map(verse => (
-                                    <article className="verse-row parallel-verse" key={verse.key}>
-                                        <p style={{fontSize: `${Math.max(0.95, fontScale)}rem`, lineHeight: lineHeightScale}}>
+                                    <article
+                                        className={
+                                            activeParallelVerse != null &&
+                                            activeParallelVerse >= verse.start &&
+                                            activeParallelVerse <= verse.end
+                                                ? 'verse-row parallel-verse verse-row-active'
+                                                : 'verse-row parallel-verse'
+                                        }
+                                        key={verse.key}
+                                        onClick={() => setActiveParallelVerse(verse.verseId)}
+                                    >
+                                        <span className="verse-number verse-number-secondary">{verse.label}</span>
+                                        <p
+                                            className="verse-body"
+                                            style={{fontSize: `${Math.max(0.95, fontScale)}rem`, lineHeight: lineHeightScale}}
+                                        >
                                             {verse.text}
                                         </p>
                                     </article>
@@ -564,7 +665,7 @@ export default function ReaderPage() {
                 <div className="section-header">
                     <div>
                         <p className="eyebrow">Cross references</p>
-                        <h3>Related verses</h3>
+                        <h3>{ui.relatedVerses}</h3>
                     </div>
                     <button
                         className="collapse-toggle"
@@ -572,8 +673,8 @@ export default function ReaderPage() {
                         onClick={() => setShowRelated(value => !value)}
                         aria-expanded={showRelated}
                     >
-                        {showRelated ? 'Hide' : 'Show'}
-                        <span className="material-symbols-outlined">{showRelated ? 'expand_less' : 'expand_more'}</span>
+                        {showRelated ? ui.hide : ui.show}
+                        <Icon name={showRelated ? 'expand_less' : 'expand_more'} size={18} />
                     </button>
                 </div>
 
@@ -596,27 +697,33 @@ export default function ReaderPage() {
 
             <div className="chapter-floating-nav">
                 <button className="chapter-nav-btn" type="button" onClick={() => goToChapter(numericChapter - 1)}>
-                    <span className="material-symbols-outlined">chevron_left</span>
-                    Previous
+                    <Icon name="chevron_left" size={18} />
+                    {ui.previous}
                 </button>
                 <button className="chapter-nav-btn chapter-nav-btn-primary" type="button" onClick={() => goToChapter(numericChapter + 1)}>
-                    Next
-                    <span className="material-symbols-outlined">chevron_right</span>
+                    {ui.next}
+                    <Icon name="chevron_right" size={18} />
                 </button>
             </div>
 
             {selectedVerse ? (
-                <div className="verse-modal-backdrop" role="dialog" aria-modal="true" onClick={() => setSelectedVerseKey(null)}>
-                    <div className="verse-modal" onClick={event => event.stopPropagation()}>
+                <div
+                    className="verse-modal-backdrop"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="verse-modal-title"
+                    onClick={() => setSelectedVerseKey(null)}
+                >
+                    <div className="verse-modal" ref={modalRef} onClick={event => event.stopPropagation()}>
                         <div className="section-header">
                             <div>
-                                <p className="eyebrow">Verse actions</p>
-                                <h3>
+                                <p className="eyebrow">{ui.verseActions}</p>
+                                <h3 id="verse-modal-title">
                                     {bookTitle} {numericChapter}:{selectedVerse.label}
                                 </h3>
                             </div>
                             <button className="icon-button mini" type="button" onClick={() => setSelectedVerseKey(null)}>
-                                <span className="material-symbols-outlined">close</span>
+                                <Icon name="close" size={18} />
                             </button>
                         </div>
 
@@ -636,7 +743,7 @@ export default function ReaderPage() {
                                     })
                                 }
                             >
-                                Bookmark
+                                {ui.bookmark}
                             </button>
                             <button
                                 className={selectedVerseKey && isHighlighted(selectedVerseKey) ? 'chip chip-highlight chip-active-highlight' : 'chip chip-highlight'}
@@ -651,15 +758,15 @@ export default function ReaderPage() {
                                     })
                                 }
                             >
-                                Highlight
+                                {ui.highlight}
                             </button>
                             <button className="chip" type="button" onClick={() => void shareSelectedVerse()}>
-                                Share
+                                {ui.share}
                             </button>
                         </div>
 
                         <div className="stack-xs">
-                            <p className="meta">Collections</p>
+                            <p className="meta">{ui.collections}</p>
                             <div className="row gap-sm wrap">
                                 {collections.map(collection => (
                                     <button
@@ -677,36 +784,36 @@ export default function ReaderPage() {
                         </div>
 
                         <div className="stack-xs">
-                            <p className="meta">Create collection</p>
+                            <p className="meta">{ui.createCollection}</p>
                             <div className="row gap-sm wrap">
                                 <input
                                     className="input"
-                                    placeholder="Collection name"
+                                    placeholder={ui.createCollection}
                                     value={newCollectionName}
                                     onChange={event => setNewCollectionName(event.target.value)}
                                 />
                                 <button className="btn btn-primary" type="button" onClick={createAndAttachCollection}>
-                                    Add
+                                    {ui.add}
                                 </button>
                             </div>
                         </div>
 
                         <div className="stack-xs">
-                            <p className="meta">Reflection note</p>
+                            <p className="meta">{ui.reflectionNote}</p>
                             <textarea
                                 className="input"
                                 rows={4}
                                 value={noteDraft}
                                 onChange={event => setNoteDraft(event.target.value)}
-                                placeholder="Write your reflection for this verse"
+                                placeholder={ui.reflectionNote}
                             />
                             <div className="row gap-sm wrap">
                                 <button className="btn btn-primary" type="button" onClick={saveSelectedVerseNote}>
-                                    Save note
+                                    {ui.saveNote}
                                 </button>
                                 {selectedVerseNote ? (
                                     <button className="btn" type="button" onClick={clearSelectedVerseNote}>
-                                        Remove note
+                                        {ui.removeNote}
                                     </button>
                                 ) : null}
                             </div>

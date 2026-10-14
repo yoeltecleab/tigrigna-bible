@@ -104,7 +104,13 @@ export const useSavedStore = create<SavedState>()(
                     return existing.id;
                 }
 
-                const id = `collection-${trimmed.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+                const slug = trimmed
+                    .toLocaleLowerCase()
+                    .normalize('NFKC')
+                    .replace(/[^\p{L}\p{N}]+/gu, '-')
+                    .replace(/^-+|-+$/g, '')
+                    .slice(0, 48);
+                const id = `collection-${slug || Date.now().toString(36)}`;
                 set(state => ({
                     collections: [
                         ...state.collections,

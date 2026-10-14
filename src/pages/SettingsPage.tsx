@@ -1,5 +1,6 @@
 import {Link} from 'react-router-dom';
 import {useSettingsStore} from '../store/settingsStore';
+import {getUi} from '../i18n/ui';
 
 export default function SettingsPage() {
     const systemLanguage = useSettingsStore(state => state.systemLanguage);
@@ -15,51 +16,53 @@ export default function SettingsPage() {
     const setShowDecorativeCrosses = useSettingsStore(state => state.setShowDecorativeCrosses);
     const recentSearches = useSettingsStore(state => state.recentSearches);
     const clearRecentSearches = useSettingsStore(state => state.clearRecentSearches);
+    const ui = getUi(systemLanguage);
 
     return (
         <section className="stack-lg">
             <div className="panel hero-panel stack-sm">
-                <p className="eyebrow">Settings</p>
-                <h3>Reading preferences</h3>
-                <p className="muted">Tune interface language, design themes, and font proportions.</p>
+                <p className="eyebrow">{ui.settings}</p>
+                <h3>{ui.readingPreferences}</h3>
 
                 <label className="stack-xs">
-                    <span>Bible language</span>
+                    <span>{ui.bibleLanguage}</span>
                     <select className="input" value="ti" disabled aria-describedby="bible-language-help">
                         <option value="ti">Tigrigna</option>
                     </select>
                     <span id="bible-language-help" className="muted">
-                        Scripture text is currently available in Tigrigna only.
+                        {ui.scriptureTiOnly}
                     </span>
                 </label>
 
                 <label className="stack-xs">
-                    <span>System language</span>
+                    <span>{ui.systemLanguage}</span>
                     <select
                         className="input"
                         value={systemLanguage}
                         onChange={event => setSystemLanguage(event.target.value as 'ti' | 'en')}
                     >
                         <option value="en">English</option>
-                        <option value="ti">Tigrigna</option>
+                        <option value="ti">ትግርኛ</option>
                     </select>
                 </label>
 
                 <label className="stack-xs">
-                    <span>Design theme</span>
+                    <span>{ui.designTheme}</span>
                     <select
                         className="input"
                         value={designTheme}
                         onChange={event => setDesignTheme(event.target.value as 'sacred-covenant' | 'aether-light' | 'orthodox')}
                     >
-                        <option value="sacred-covenant">Sacred Covenant (default)</option>
+                        <option value="sacred-covenant">Sacred Covenant</option>
                         <option value="aether-light">Aether Light</option>
                         <option value="orthodox">Orthodox</option>
                     </select>
                 </label>
 
                 <label className="stack-xs">
-                    <span>Bible font scale ({fontScale.toFixed(1)}x)</span>
+                    <span>
+                        {ui.bibleFontScale} ({fontScale.toFixed(1)}x)
+                    </span>
                     <input
                         type="range"
                         className="input"
@@ -72,7 +75,9 @@ export default function SettingsPage() {
                 </label>
 
                 <label className="stack-xs">
-                    <span>App font scale ({appFontScale.toFixed(1)}x)</span>
+                    <span>
+                        {ui.appFontScale} ({appFontScale.toFixed(1)}x)
+                    </span>
                     <input
                         type="range"
                         className="input"
@@ -86,10 +91,10 @@ export default function SettingsPage() {
 
                 <div className="row gap-sm wrap">
                     <button className="btn" type="button" onClick={syncFontScales}>
-                        Match sizes
+                        {ui.matchSizes}
                     </button>
                     <label className="toggle-row" htmlFor="decorative-crosses-toggle">
-                        <span>Show cross motifs</span>
+                        <span>{ui.showCrossMotifs}</span>
                         <button
                             id="decorative-crosses-toggle"
                             type="button"
@@ -104,29 +109,29 @@ export default function SettingsPage() {
 
                 <div className="stack-xs">
                     <div className="section-header">
-                        <span>Recent searches</span>
+                        <span>{ui.recentSearches}</span>
                         {recentSearches.length > 0 ? (
                             <button className="link-btn" type="button" onClick={clearRecentSearches}>
-                                Clear
+                                {ui.clear}
                             </button>
                         ) : null}
                     </div>
                     {recentSearches.length > 0 ? (
                         <p className="muted">{recentSearches.slice(0, 5).join(' • ')}</p>
                     ) : (
-                        <p className="muted">No recent searches yet.</p>
+                        <p className="muted">—</p>
                     )}
                 </div>
             </div>
 
             <div className="panel stack-sm">
-                <h3>Legal</h3>
+                <h3>{ui.legal}</h3>
                 <div className="row gap-sm wrap">
                     <Link className="btn" to="/about">
-                        About &amp; attribution
+                        {ui.aboutAttribution}
                     </Link>
                     <Link className="btn" to="/privacy">
-                        Privacy policy
+                        {ui.privacyPolicy}
                     </Link>
                 </div>
             </div>

@@ -7,7 +7,6 @@ import App from './App';
 import './styles.css';
 import './pwa';
 
-import '@fontsource-variable/inter/index.css';
 import '@fontsource-variable/manrope/index.css';
 import '@fontsource/space-grotesk/400.css';
 import '@fontsource/space-grotesk/500.css';

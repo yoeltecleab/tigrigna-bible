@@ -65,15 +65,34 @@ export const loadBooks = async (language: string): Promise<Book[]> => {
     return request;
 };
 
+/** @deprecated Monolith search index removed; prefer search worker shards. */
 export const loadSearchIndex = async (language: string): Promise<SearchVerse[]> => {
     const cached = searchIndexCache.get(language);
     if (cached) {
         return cached;
     }
 
-    const request = fetchJson<SearchVerse[]>(`/content/${language}/searchIndex.generated.json`);
+    // Fall back to reader sample index if a legacy monolith is absent.
+    const request = (async () => {
+        try {
+            return await fetchJson<SearchVerse[]>(`/content/${language}/searchIndex.generated.json`);
+        } catch {
+            return loadReaderIndex(language);
+        }
+    })();
     searchIndexCache.set(language, request);
     return request;
+};
+
+export const resolveDailyVerse = async (language: string): Promise<SearchVerse | null> => {
+    const seeded = await loadDailyVerse(language);
+    const index = await loadReaderIndex(language);
+    if (index.length === 0) {
+        return seeded;
+    }
+
+    const dayBucket = Math.floor(Date.now() / 86_400_000);
+    return index[dayBucket % index.length] ?? seeded;
 };
 
 export const loadReaderIndex = async (language: string): Promise<SearchVerse[]> => {

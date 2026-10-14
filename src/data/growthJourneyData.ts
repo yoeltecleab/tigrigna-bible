@@ -35,8 +35,8 @@ export type GrowthSnapshot = {
     apostleRank: string;
     xp: number;
     streakDays: number;
-    dailyVerseReference: 'John 1:5',
-    dailyVerseQuote: '"The light shines in the darkness, and the darkness has not overcome it."',
+    dailyVerseReference: string;
+    dailyVerseQuote: string;
     badges: ProgressBadge[];
     quests: JourneyQuest[];
     suggestedPlans: SuggestedPlan[];
@@ -82,8 +82,8 @@ export const getGrowthJourneySnapshot = (input: GrowthInput): GrowthSnapshot => 
         dailyVerseReference: 'John 1:5',
         dailyVerseQuote: '"The light shines in the darkness, and the darkness has not overcome it."',
         badges: [
-            {id: 'dawn-seeker', title: 'Dawn seeker', status: input.bookmarks >= 5 ? 'earned' : 'locked', icon: 'wb_sunny'},
-            {id: 'scribe-initiate', title: 'Scribe initiate', status: input.notes >= 3 ? 'earned' : 'locked', icon: 'history_edu'},
+            {id: 'dawn-seeker', title: 'Dawn seeker', status: input.bookmarks >= 5 ? 'earned' : 'locked', icon: 'sunny'},
+            {id: 'scribe-initiate', title: 'Scribe initiate', status: input.notes >= 3 ? 'earned' : 'locked', icon: 'edit_note'},
             {id: 'vigil-keeper', title: 'Vigil keeper', status: input.highlights >= 5 ? 'earned' : 'locked', icon: 'church'},
             {id: 'martyr-path', title: "Martyr's path", status: streakDays >= 30 ? 'earned' : 'locked', icon: 'lock'}
         ],

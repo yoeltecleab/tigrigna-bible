@@ -20,6 +20,7 @@ type SearchResponse = {
 };
 
 const shardCache = new Map<string, SearchVerse[]>();
+const SHARD_BATCH = 8;
 
 const fetchShard = async (language: string, bookId: string): Promise<SearchVerse[]> => {
     const key = `${language}:${bookId}`;
@@ -85,16 +86,19 @@ self.onmessage = async (event: MessageEvent<SearchRequest>) => {
     const scope = bookFilters && bookFilters.length > 0 ? bookFilters : bookFilter ? [bookFilter] : books;
     const results: SearchVerse[] = [];
 
-    for (const bookId of scope) {
-        const shard = await fetchShard(language, bookId);
+    for (let offset = 0; offset < scope.length; offset += SHARD_BATCH) {
+        const batch = scope.slice(offset, offset + SHARD_BATCH);
+        const shards = await Promise.all(batch.map(bookId => fetchShard(language, bookId)));
 
-        for (const verse of shard) {
-            if (matches(verse, queryTokens, caseSensitive, exactPhrase)) {
-                results.push(verse);
-                if (results.length >= limit) {
-                    const response: SearchResponse = {type: 'results', requestId, results};
-                    self.postMessage(response);
-                    return;
+        for (const shard of shards) {
+            for (const verse of shard) {
+                if (matches(verse, queryTokens, caseSensitive, exactPhrase)) {
+                    results.push(verse);
+                    if (results.length >= limit) {
+                        const response: SearchResponse = {type: 'results', requestId, results};
+                        self.postMessage(response);
+                        return;
+                    }
                 }
             }
         }
