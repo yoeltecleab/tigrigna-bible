@@ -1,421 +1,478 @@
 export type UiLanguage = 'ti' | 'en';
 
-type UiStrings = {
-    library: string;
-    growth: string;
-    journey: string;
-    search: string;
-    settings: string;
-    theWord: string;
-    savedVerses: string;
-    appPreferences: string;
-    searchScriptures: string;
-    books: string;
-    all: string;
-    oldTestament: string;
-    newTestament: string;
-    chapters: string;
-    chaptersCount: (n: number) => string;
-    continueReading: string;
-    dailyVerse: string;
-    openChapter: string;
-    immersiveReader: string;
-    dualPaneOn: string;
-    dualPaneOff: string;
-    displaySettings: string;
-    textSize: string;
-    spacing: string;
-    relatedVerses: string;
-    show: string;
-    hide: string;
-    previous: string;
-    next: string;
-    verseActions: string;
-    bookmark: string;
-    highlight: string;
-    share: string;
-    collections: string;
-    createCollection: string;
-    add: string;
-    reflectionNote: string;
-    saveNote: string;
-    removeNote: string;
-    jumpAndCompare: string;
-    compareBook: string;
-    compareChapter: string;
-    parallelPane: string;
-    primaryPane: string;
-    chapterOf: (chapter: number, total: number) => string;
-    bookNotFound: string;
-    bookUnavailable: string;
-    backToLibrary: string;
-    startReading: string;
-    chooseChapter: string;
-    seekingWisdom: string;
-    offlineSearchHint: string;
-    allBooks: string;
-    recentSearches: string;
-    clear: string;
-    popularTags: string;
-    results: string;
-    foundInstances: (n: number) => string;
-    searching: string;
-    noResults: string;
-    sortBy: string;
-    relevance: string;
-    book: string;
-    readChapter: string;
-    installApp: string;
-    installIosHint: string;
-    updateAvailable: string;
-    reloadToUpdate: string;
-    offline: string;
-    online: string;
-    readingPreferences: string;
-    bibleLanguage: string;
-    systemLanguage: string;
-    designTheme: string;
-    themeDrawerSubtitle: string;
-    openThemes: string;
-    moreSettings: string;
-    close: string;
-    themeTierDark: string;
-    themeTierMid: string;
-    themeTierLight: string;
-    bibleFontScale: string;
-    appFontScale: string;
-    matchSizes: string;
-    showCrossMotifs: string;
-    legal: string;
-    aboutAttribution: string;
-    privacyPolicy: string;
-    scriptureTiOnly: string;
-    seekerLevel: (n: number) => string;
-    soulProgress: string;
-    streakDays: (n: number) => string;
-    badges: string;
-    quests: string;
-    suggestedPlans: string;
-    resumeReading: string;
-    noSavedYet: string;
-    note: string;
-    collection: string;
-    about: string;
-    privacy: string;
-    pageNotFound: string;
-    pageNotFoundBody: string;
-    goBackLibrary: string;
-    crossReferences: string;
-    parallelStudyHint: string;
-    inCollections: (names: string) => string;
-    badgeEarned: string;
-    badgeLocked: string;
-    journeyCounts: (bookmarks: number, highlights: number, notes: number) => string;
-    offlinePack: string;
-    offlineReady: string;
-    offlineReadyShort: string;
-    offlinePartial: (cached: number, total: number) => string;
-    offlineEmpty: string;
-    downloadOffline: string;
-    downloadingOffline: string;
-    cancelDownload: string;
-    offlineDownloadDone: string;
-    offlineDownloadFailed: string;
-    exactPhrase: string;
-    caseSensitive: string;
-    loadMore: string;
-    showingOf: (shown: number, total: number) => string;
-    selectVerses: string;
-    doneSelecting: string;
-    copyCitation: string;
-    copied: string;
-    shareSelected: string;
-    selectedCount: (n: number) => string;
-    highlightColor: string;
-    colorGold: string;
-    colorRose: string;
-    colorGreen: string;
-    colorSky: string;
-};
-
-const en: UiStrings = {
+const en = {
+    // Navigation
     library: 'Library',
     growth: 'Growth',
-    journey: 'Journey',
+    journey: 'Saved',
     search: 'Search',
     settings: 'Settings',
     theWord: 'The Word',
-    savedVerses: 'Saved Verses',
-    appPreferences: 'App Preferences',
-    searchScriptures: 'Search the Scriptures',
-    books: 'Books',
+    back: 'Back',
+    close: 'Close',
+    done: 'Done',
+    cancel: 'Cancel',
+    clear: 'Clear',
+    add: 'Add',
+    save: 'Save',
+    remove: 'Remove',
+    undo: 'Undo',
+    rename: 'Rename',
+    delete: 'Delete',
+    more: 'More',
     all: 'All',
-    oldTestament: 'Old Testament',
-    newTestament: 'New Testament',
-    chapters: 'Chapters',
-    chaptersCount: n => `${n} chapters`,
-    continueReading: 'Continue reading',
-    dailyVerse: 'Daily verse',
-    openChapter: 'Open chapter',
-    immersiveReader: 'Immersive reader',
-    dualPaneOn: 'Dual pane on',
-    dualPaneOff: 'Dual pane off',
-    displaySettings: 'Display settings',
-    textSize: 'Text size',
-    spacing: 'Spacing',
-    relatedVerses: 'Related verses',
+    seeAll: 'See all',
     show: 'Show',
     hide: 'Hide',
-    previous: 'Previous',
-    next: 'Next',
-    verseActions: 'Verse actions',
-    bookmark: 'Bookmark',
-    highlight: 'Highlight',
-    share: 'Share',
-    collections: 'Collections',
-    createCollection: 'Create collection',
-    add: 'Add',
-    reflectionNote: 'Reflection note',
-    saveNote: 'Save note',
-    removeNote: 'Remove note',
-    jumpAndCompare: 'Jump and compare',
-    compareBook: 'Compare book',
-    compareChapter: 'Compare chapter',
-    parallelPane: 'TI Parallel study',
-    primaryPane: 'TI ወንጌል',
-    chapterOf: (chapter, total) => `Chapter ${chapter} of ${total}`,
+
+    // Library / books
+    books: 'Books',
+    oldTestament: 'Old Testament',
+    newTestament: 'New Testament',
+    chapter: 'Chapter',
+    chapters: 'Chapters',
+    chaptersCount: (n: number) => `${n} ${n === 1 ? 'chapter' : 'chapters'}`,
+    chaptersReadOf: (read: number, total: number) => `${read} of ${total} read`,
+    continueReading: 'Continue reading',
+    continueAt: (chapter: number) => `Continue at chapter ${chapter}`,
+    startReading: 'Start reading',
+    readAgain: 'Read again',
     bookNotFound: 'Book not found',
     bookUnavailable: 'The selected book is unavailable.',
     backToLibrary: 'Back to library',
-    startReading: 'Start reading',
-    chooseChapter: 'Choose a chapter to open the reader.',
-    seekingWisdom: 'Seek wisdom in the sacred text.',
-    offlineSearchHint: 'Offline-capable search with book filters and direct chapter opening.',
-    allBooks: 'All books',
-    recentSearches: 'Recent searches',
-    clear: 'Clear',
-    popularTags: 'Popular tags',
-    results: 'Results',
-    foundInstances: n => `Found ${n} instances`,
-    searching: 'Searching…',
-    noResults: 'No results.',
-    sortBy: 'Sort by',
-    relevance: 'Relevance',
-    book: 'Book',
-    readChapter: 'Read chapter',
-    installApp: 'Install App',
-    installIosHint: 'Share → Add to Home Screen',
-    updateAvailable: 'Update available',
-    reloadToUpdate: 'Reload',
-    offline: 'Offline',
-    online: 'Online',
-    readingPreferences: 'Reading preferences',
-    bibleLanguage: 'Bible language',
-    systemLanguage: 'System language',
-    designTheme: 'Visual mode',
-    themeDrawerSubtitle: 'Visual systems',
-    openThemes: 'Change visual mode',
-    moreSettings: 'All settings',
-    close: 'Close',
-    themeTierDark: 'Deep dark',
-    themeTierMid: 'Balanced',
-    themeTierLight: 'Light',
-    bibleFontScale: 'Bible font scale',
-    appFontScale: 'App font scale',
-    matchSizes: 'Match sizes',
-    showCrossMotifs: 'Show cross motifs',
-    legal: 'Legal',
-    aboutAttribution: 'About & attribution',
-    privacyPolicy: 'Privacy policy',
-    scriptureTiOnly: 'Scripture text is currently available in Tigrigna only.',
-    seekerLevel: n => `Seeker level ${n}`,
-    soulProgress: 'Soul progress',
-    streakDays: n => `${n}-day streak`,
-    badges: 'Badges',
-    quests: 'Quests',
-    suggestedPlans: 'Suggested plans',
-    resumeReading: 'Resume reading',
-    noSavedYet: 'No saved items yet. Add a bookmark, highlight, collection link, or note.',
-    note: 'Note',
-    collection: 'Collection',
-    about: 'About',
-    privacy: 'Privacy',
-    pageNotFound: 'Page not found',
-    pageNotFoundBody: 'The link is invalid or no longer available.',
-    goBackLibrary: 'Go back to library',
-    crossReferences: 'Cross references',
-    parallelStudyHint: 'Tigrigna · parallel study',
-    inCollections: names => `In: ${names}`,
-    badgeEarned: 'Earned',
-    badgeLocked: 'Locked',
-    journeyCounts: (bookmarks, highlights, notes) =>
-        `${bookmarks} bookmarks · ${highlights} highlights · ${notes} notes`,
-    offlinePack: 'Offline Bible pack',
-    offlineReady: 'Full Bible ready offline',
-    offlineReadyShort: 'Offline ready',
-    offlinePartial: (cached, total) => `${cached} of ${total} chapters cached`,
-    offlineEmpty: 'Not downloaded yet — needs network once',
-    downloadOffline: 'Download for offline',
-    downloadingOffline: 'Downloading…',
-    cancelDownload: 'Cancel',
-    offlineDownloadDone: 'Offline pack ready',
-    offlineDownloadFailed: 'Download failed. Try again on a stable connection.',
-    exactPhrase: 'Exact phrase',
-    caseSensitive: 'Case sensitive',
-    loadMore: 'Load more',
-    showingOf: (shown, total) => `Showing ${shown} of ${total}`,
+    dailyVerse: 'Verse of the day',
+    openChapter: 'Open chapter',
+    readInContext: 'Read in context',
+    todayReading: "Today's reading",
+    filterBooks: 'Find a book',
+
+    // Reader
+    readingOptions: 'Reading options',
+    jumpTo: 'Go to',
+    textSize: 'Text size',
+    spacing: 'Line spacing',
+    font: 'Font',
+    fontSerif: 'Serif',
+    fontSans: 'Sans',
+    layout: 'Layout',
+    layoutVerses: 'Verse by verse',
+    layoutParagraph: 'Paragraph',
+    verseNumbers: 'Verse numbers',
+    sectionHeadings: 'Section headings',
+    savedMarkers: 'Highlights & markers',
+    focusAutoHide: 'Hide controls while reading',
+    focusAutoHideHint: 'Scroll down to hide, up or tap to bring them back.',
+    compareSideBySide: 'Compare side by side',
+    compareWith: 'Compare with',
     selectVerses: 'Select verses',
-    doneSelecting: 'Done',
-    copyCitation: 'Copy citation',
+    previous: 'Previous',
+    next: 'Next',
+    nextChapter: 'Next chapter',
+    previousChapter: 'Previous chapter',
+    markAsRead: 'Mark as read',
+    markedRead: 'Read',
+    chapterMarkedRead: 'Chapter marked as read',
+    endOfChapter: 'End of chapter',
+    endOfBible: 'You reached the end of the Bible.',
+    chapterUnavailable: 'This chapter could not be loaded.',
+    chapterUnavailableOffline: 'This chapter is not available offline yet. Connect once or download the offline Bible in Settings.',
+    retry: 'Try again',
+
+    // Verse actions
+    verseActions: 'Verse actions',
+    bookmark: 'Bookmark',
+    bookmarked: 'Bookmarked',
+    highlight: 'Highlight',
+    removeHighlight: 'No highlight',
+    share: 'Share',
+    copy: 'Copy',
     copied: 'Copied',
-    shareSelected: 'Share selected',
-    selectedCount: n => `${n} selected`,
-    highlightColor: 'Highlight color',
+    note: 'Note',
+    notes: 'Notes',
+    addNote: 'Add note',
+    editNote: 'Edit note',
+    notePlaceholder: 'Write a reflection…',
+    noteSaved: 'Note saved',
+    noteRemoved: 'Note removed',
+    collections: 'Collections',
+    collection: 'Collection',
+    newCollection: 'New collection',
+    collectionName: 'Collection name',
+    addedTo: (name: string) => `Added to ${name}`,
+    removedFrom: (name: string) => `Removed from ${name}`,
+    relatedVerses: 'Related verses',
+    findRelated: 'Find related verses',
+    noRelated: 'No related verses found.',
+    selectedCount: (n: number) => `${n} selected`,
+    bookmarkAdded: 'Bookmark added',
+    bookmarkRemoved: 'Bookmark removed',
+    highlighted: 'Highlighted',
     colorGold: 'Gold',
     colorRose: 'Rose',
     colorGreen: 'Green',
-    colorSky: 'Sky'
+    colorSky: 'Sky',
+
+    // Search
+    searchPlaceholder: 'Search the Scriptures',
+    recentSearches: 'Recent',
+    suggestions: 'Try searching',
+    results: 'Results',
+    resultsCount: (n: number, capped: boolean) => (capped ? `${n}+ verses` : `${n} ${n === 1 ? 'verse' : 'verses'}`),
+    searching: 'Searching…',
+    noResults: 'No verses found',
+    noResultsHint: 'Try fewer words, or clear your filters.',
+    relevance: 'Relevance',
+    bibleOrder: 'Bible order',
+    filters: 'Filters',
+    clearFilters: 'Clear filters',
+    allBooks: 'All books',
+    selectAll: 'Select all',
+    exactPhrase: 'Exact phrase',
+    exactPhraseHint: 'Match the words together, in order.',
+    loadMore: 'Show more',
+    inBooks: (n: number) => `${n} ${n === 1 ? 'book' : 'books'}`,
+    searchHint: 'Search works offline once books are downloaded.',
+
+    // Saved
+    savedTitle: 'Saved',
+    bookmarks: 'Bookmarks',
+    highlights: 'Highlights',
+    noSavedYet: 'Nothing saved yet',
+    noSavedHint: 'Tap any verse while reading to bookmark, highlight, add a note or save it to a collection.',
+    noCollectionItems: 'This collection is empty.',
+    deleteCollectionConfirm: (name: string) => `Delete “${name}”? Its saved verses stay in your other lists.`,
+    removedItem: 'Removed',
+    defaultCollectionNames: {'prayer-focus': 'Prayer focus', 'wisdom-pearls': 'Wisdom pearls'} as Record<string, string>,
+
+    // Growth
+    growthTitle: 'Growth',
+    currentStreak: 'Current streak',
+    bestStreak: 'Best streak',
+    chaptersRead: 'Chapters read',
+    daysActive: 'Days active',
+    days: (n: number) => `${n} ${n === 1 ? 'day' : 'days'}`,
+    thisWeek: 'This week',
+    weekSummary: (n: number) => `${n} ${n === 1 ? 'chapter' : 'chapters'} this week`,
+    streakNudge: 'Read a chapter today to keep your streak.',
+    streakKept: 'You read today. Well done.',
+    plans: 'Reading plans',
+    myPlans: 'My plans',
+    browsePlans: 'Browse plans',
+    startPlan: 'Start plan',
+    continuePlan: 'Continue',
+    stopPlan: 'Stop plan',
+    planDay: (day: number, total: number) => `Day ${day} of ${total}`,
+    planDays: (n: number) => `${n} days`,
+    planComplete: 'Plan complete',
+    planStarted: 'Plan started',
+    badges: 'Badges',
+    quests: 'This week’s goals',
+    earned: 'Earned',
+    reminder: 'Daily reminder',
+    reminderTime: 'Time',
+    reminderHint: 'A gentle nudge at this time when you haven’t read yet. Notifications appear while the app is open.',
+    reminderBanner: 'It’s time for today’s reading.',
+    notificationsBlocked: 'Notifications are blocked for this site in your browser settings.',
+    resetProgress: 'Reset reading progress',
+    resetProgressConfirm: 'Reset all reading progress, streaks and plans? Saved verses are kept.',
+    progressReset: 'Progress reset',
+    weekdayShort: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+
+    // Settings
+    appearance: 'Appearance',
+    matchSystem: 'Match system',
+    singleTheme: 'Always one theme',
+    theme: 'Theme',
+    lightTheme: 'Light theme',
+    darkTheme: 'Dark theme',
+    themeTierDark: 'Dark',
+    themeTierMid: 'Balanced',
+    themeTierLight: 'Light',
+    backgroundEffects: 'Background effects',
+    backgroundEffectsHint: 'Soft glows behind pages. Always off while reading.',
+    reading: 'Reading',
+    preview: 'Preview',
+    appLanguage: 'App language',
+    bibleLanguage: 'Bible language',
+    scriptureTiOnly: 'Scripture text is currently available in Tigrigna only.',
+    appTextSize: 'App text size',
+    offline: 'Offline',
+    offlinePack: 'Offline Bible',
+    offlineReady: 'The whole Bible is on this device.',
+    offlinePartial: (cached: number, total: number) => `${cached} of ${total} chapters on this device`,
+    offlineEmpty: 'Download once to read and search without a connection.',
+    downloadOffline: 'Download Bible',
+    downloadingOffline: (percent: number) => `Downloading… ${percent}%`,
+    cancelDownload: 'Cancel',
+    offlineDownloadDone: 'The Bible is ready offline',
+    offlineDownloadFailed: 'Download failed. Try again on a stable connection.',
+    storageUsed: (mb: string) => `${mb} MB used`,
+    youAreOffline: 'You’re offline. Downloaded chapters still work.',
+    backOnline: 'Back online',
+    updateReady: 'A new version is ready.',
+    reload: 'Reload',
+    installApp: 'Install app',
+    installAppHint: 'Add the Bible to your home screen for full-screen, offline reading.',
+    installed: 'Installed',
+    installIosTitle: 'Add to Home Screen',
+    installIosStep1: 'Tap the Share button in Safari’s toolbar.',
+    installIosStep2: 'Scroll and choose “Add to Home Screen”.',
+    installIosStep3: 'Tap “Add”. The Bible opens like an app.',
+    installIosIconTip: 'Seeing an old letter icon? Remove the app from your home screen, then in Settings › Safari › Advanced › Website Data remove this site, and add it again.',
+    installNow: 'Install',
+    notNow: 'Not now',
+    data: 'Data',
+    clearRecentSearches: 'Clear recent searches',
+    about: 'About',
+    privacy: 'Privacy',
+    aboutAttribution: 'About & attribution',
+    privacyPolicy: 'Privacy policy',
+    version: 'Version',
+
+    // Misc
+    pageNotFound: 'Page not found',
+    pageNotFoundBody: 'The link is invalid or no longer available.',
+    goBackLibrary: 'Go back to library',
+    loading: 'Loading…'
 };
+
+export type UiStrings = typeof en;
 
 const ti: UiStrings = {
     library: 'ቤተ-መጻሕፍቲ',
     growth: 'ዕብየት',
-    journey: 'ጉዕዞ',
+    journey: 'ዝተዓቀበ',
     search: 'ድለ',
     settings: 'ቅንብራት',
     theWord: 'ቃል',
-    savedVerses: 'ዝተሓልዉ ጥቕስታት',
-    appPreferences: 'ቅንብራት መተግበሪ',
-    searchScriptures: 'ቅዱሳት ጽሑፋት ድለ',
-    books: 'መጻሕፍቲ',
+    back: 'ተመለስ',
+    close: 'ዕጸው',
+    done: 'ተወዲኡ',
+    cancel: 'ሰርዝ',
+    clear: 'ኣጽሪ',
+    add: 'ወስኽ',
+    save: 'ዓቅብ',
+    remove: 'ኣልግስ',
+    undo: 'ምለስ',
+    rename: 'ስም ቀይር',
+    delete: 'ደምስስ',
+    more: 'ተወሳኺ',
     all: 'ኩሉ',
+    seeAll: 'ኩሉ ርአ',
+    show: 'ኣርኢ',
+    hide: 'ሕባእ',
+
+    books: 'መጻሕፍቲ',
     oldTestament: 'ብሉይ ኪዳን',
     newTestament: 'ሓድሽ ኪዳን',
+    chapter: 'ምዕራፍ',
     chapters: 'ምዕራፋት',
     chaptersCount: n => `${n} ምዕራፋት`,
+    chaptersReadOf: (read, total) => `${read} ካብ ${total} ተነቢቡ`,
     continueReading: 'ንባብ ቀጽል',
-    dailyVerse: 'ናይ መዓልቲ ጥቕሲ',
-    openChapter: 'ምዕራፍ ክፈት',
-    immersiveReader: 'ንባብ',
-    dualPaneOn: 'ክልተ ገጽ ተኸፊቱ',
-    dualPaneOff: 'ክልተ ገጽ ዕጸው',
-    displaySettings: 'ቅንብራት ምርኢት',
-    textSize: 'ዓቐን ፊደል',
-    spacing: 'ርሕቀት መስመር',
-    relatedVerses: 'ተዛማዲ ጥቕስታት',
-    show: 'ኣርእይ',
-    hide: 'ሓብእ',
-    previous: 'ዝሓለፈ',
-    next: 'ዝቕጽል',
-    verseActions: 'ተግባራት ጥቕሲ',
-    bookmark: 'መልክዕ',
-    highlight: 'ኣብርህ',
-    share: 'ኣካፍል',
-    collections: 'እከባታት',
-    createCollection: 'ሓድሽ እከብ ፍጠር',
-    add: 'ውስኽ',
-    reflectionNote: 'ኣስተብህሎ',
-    saveNote: 'መዘኻኸሪ ኣቐምጥ',
-    removeNote: 'መዘኻኸሪ ኣጥፍእ',
-    jumpAndCompare: 'ዝለልን ኣነጻጽርን',
-    compareBook: 'መጽሓፍ ኣነጻጽር',
-    compareChapter: 'ምዕራፍ ኣነጻጽር',
-    parallelPane: 'TI ተወሳኺ ንባብ',
-    primaryPane: 'TI ወንጌል',
-    chapterOf: (chapter, total) => `ምዕራፍ ${chapter} ካብ ${total}`,
+    continueAt: chapter => `ካብ ምዕራፍ ${chapter} ቀጽል`,
+    startReading: 'ንባብ ጀምር',
+    readAgain: 'ደጊምካ ኣንብብ',
     bookNotFound: 'መጽሓፍ ኣይተረኽበን',
     bookUnavailable: 'እቲ ዝተመረጸ መጽሓፍ የለን።',
     backToLibrary: 'ናብ ቤተ-መጻሕፍቲ ተመለስ',
-    startReading: 'ንባብ ጀምር',
-    chooseChapter: 'ንንባብ ምዕራፍ ምረጽ።',
-    seekingWisdom: 'ብቕዱስ ጽሑፍ ጥበብ ድለ።',
-    offlineSearchHint: 'ብዘይ ኢንተርነት ዝሰርሕ ድለያ፣ ብመጻሕፍቲ ምፍላይን ቀጥታ ናብ ምዕራፍ ምኻድን።',
-    allBooks: 'ኩለን መጻሕፍቲ',
-    recentSearches: 'ናይ ቀረባ ድለያታት',
-    clear: 'ኣጽሪ',
-    popularTags: 'ተፈላጥ ቃላት',
-    results: 'ውጽኢታት',
-    foundInstances: n => `${n} ተረኺቡ`,
-    searching: 'ይድለ ኣሎ…',
-    noResults: 'ውጽኢት የለን።',
-    sortBy: 'ሰርድ ብ',
-    relevance: 'ምትእስሳር',
-    book: 'መጽሓፍ',
-    readChapter: 'ምዕራፍ ኣንብብ',
-    installApp: 'መተግበሪ ኣቐምጥ',
-    installIosHint: 'Share → Add to Home Screen',
-    updateAvailable: 'ሓድሽ ስሪት ኣሎ',
-    reloadToUpdate: 'ዳግም ጽዓን',
-    offline: 'ብዘይ መርበብ',
-    online: 'ብመርበብ',
-    readingPreferences: 'ቅንብራት ንባብ',
-    bibleLanguage: 'ቋንቋ መጽሓፍ ቅዱስ',
-    systemLanguage: 'ቋንቋ ስርዓት',
-    designTheme: 'ቅርጺ ምርኢት',
-    themeDrawerSubtitle: 'ስርዓታት ምርኢት',
-    openThemes: 'ቅርጺ ምርኢት ቀይር',
-    moreSettings: 'ኩሉ ቅንብራት',
-    close: 'ዕጸው',
-    themeTierDark: 'ጸሊም',
-    themeTierMid: 'ማእከላይ',
-    themeTierLight: 'ብርሃን',
-    bibleFontScale: 'ዓቐን ፊደል መጽሓፍ',
-    appFontScale: 'ዓቐን ፊደል መተግበሪ',
-    matchSizes: 'ዓቐናት ኣሰማምር',
-    showCrossMotifs: 'መስቀላት ኣርእይ',
-    legal: 'ሕጋዊ',
-    aboutAttribution: 'ብዛዕባን ምንጭን',
-    privacyPolicy: 'ናይ ዉሽጣዊ ፖሊሲ',
-    scriptureTiOnly: 'ጽሑፍ መጽሓፍ ቅዱስ ሕጂ ብትግርኛ ጥራይ ኣሎ።',
-    seekerLevel: n => `ደረጃ ደላይ ${n}`,
-    soulProgress: 'ምዕባለ ነፍሲ',
-    streakDays: n => `${n} መዓልቲ ተኸታታሊ`,
-    badges: 'ልዕልናታት',
-    quests: 'ተልእኾታት',
-    suggestedPlans: 'ዝሑላት ውጥናት',
-    resumeReading: 'ንባብ ቀጽል',
-    noSavedYet: 'ዝተሓለወ የለን። መልክዕ፣ ብርሃን፣ እከብ ወይ መዘኻኸሪ ውስኽ።',
-    note: 'መዘኻኸሪ',
-    collection: 'እከብ',
-    about: 'ብዛዕባ',
-    privacy: 'ውሽጣዊ',
-    pageNotFound: 'ገጽ ኣይተረኽበን',
-    pageNotFoundBody: 'እቲ መራኸቢ ቅኑዕ ኣይኮነን ወይ የለን።',
-    goBackLibrary: 'ናብ ቤተ-መጻሕፍቲ ተመለስ',
-    crossReferences: 'ተዛማዲ ጥቕስታት',
-    parallelStudyHint: 'ትግርኛ · ኣነጻጽራዊ ንባብ',
-    inCollections: names => `ኣብ: ${names}`,
-    badgeEarned: 'ተረኺቡ',
-    badgeLocked: 'ተኸሊሉ',
-    journeyCounts: (bookmarks, highlights, notes) =>
-        `${bookmarks} መልክዕ · ${highlights} ብርሃን · ${notes} መዘኻኸሪ`,
-    offlinePack: 'ብዘይ መርበብ መጽሓፍ ቅዱስ',
-    offlineReady: 'ምሉእ መጽሓፍ ቅዱስ ብዘይ መርበብ ድሉው እዩ',
-    offlineReadyShort: 'ብዘይ መርበብ ድሉው',
-    offlinePartial: (cached, total) => `${cached} ካብ ${total} ምዕራፋት ተኸዚኖም`,
-    offlineEmpty: 'ገና ኣይተወርደን — ሓደ ግዜ መርበብ የድሊ',
-    downloadOffline: 'ንብዘይ መርበብ ኣውርድ',
-    downloadingOffline: 'ይወርድ ኣሎ…',
-    cancelDownload: 'ሰርዝ',
-    offlineDownloadDone: 'ብዘይ መርበብ ድሉው እዩ',
-    offlineDownloadFailed: 'ምውራድ ኣይተኽኣለን። ደጊምካ ፈትን።',
-    exactPhrase: 'ትክክለኛ ሓረግ',
-    caseSensitive: 'ዓቢ/ንእሽቶ ፊደል',
-    loadMore: 'ተወሳኺ ኣርእይ',
-    showingOf: (shown, total) => `${shown} ካብ ${total}`,
+    dailyVerse: 'ናይ ሎሚ ጥቕሲ',
+    openChapter: 'ምዕራፍ ክፈት',
+    readInContext: 'ምስ ኣውዱ ኣንብብ',
+    todayReading: 'ናይ ሎሚ ንባብ',
+    filterBooks: 'መጽሓፍ ድለ',
+
+    readingOptions: 'ኣማራጺታት ንባብ',
+    jumpTo: 'ኪድ ናብ',
+    textSize: 'ዓቐን ፊደል',
+    spacing: 'ርሕቀት መስመር',
+    font: 'ቅዲ ፊደል',
+    fontSerif: 'ክላሲክ',
+    fontSans: 'ዘመናዊ',
+    layout: 'ኣቀማምጣ',
+    layoutVerses: 'ጥቕሲ ብጥቕሲ',
+    layoutParagraph: 'ብሕጡብ',
+    verseNumbers: 'ቁጽሪ ጥቕሲ',
+    sectionHeadings: 'ኣርእስትታት',
+    savedMarkers: 'ምልክታትን ሕብርታትን',
+    focusAutoHide: 'ኣብ እተንብበሉ መቆጻጸሪ ሕባእ',
+    focusAutoHideHint: 'ንታሕቲ ምስ ዝሰሓብካ ይሕባእ፡ ንላዕሊ ወይ ምስ ዝጠወቕካ ይምለስ።',
+    compareSideBySide: 'ጎኒ-ንጎኒ ኣነጻጽር',
+    compareWith: 'ኣነጻጽር ምስ',
     selectVerses: 'ጥቕስታት ምረጽ',
-    doneSelecting: 'ተወድኤ',
-    copyCitation: 'ጥቕሲ ቅዳሕ',
+    previous: 'ዝሓለፈ',
+    next: 'ዝቕጽል',
+    nextChapter: 'ዝቕጽል ምዕራፍ',
+    previousChapter: 'ዝሓለፈ ምዕራፍ',
+    markAsRead: 'ከም ዝተነበበ ምልክት',
+    markedRead: 'ተነቢቡ',
+    chapterMarkedRead: 'ምዕራፍ ከም ዝተነበበ ተመዝጊቡ',
+    endOfChapter: 'መወዳእታ ምዕራፍ',
+    endOfBible: 'መወዳእታ መጽሓፍ ቅዱስ በጺሕካ።',
+    chapterUnavailable: 'እዚ ምዕራፍ ክጽዓን ኣይከኣለን።',
+    chapterUnavailableOffline: 'እዚ ምዕራፍ ገና ብዘይ መርበብ የለን። ሓንሳእ ተራኸብ ወይ ኣብ ቅንብራት ምሉእ መጽሓፍ ቅዱስ ኣውርድ።',
+    retry: 'ደጊምካ ፈትን',
+
+    verseActions: 'ተግባራት ጥቕሲ',
+    bookmark: 'ምልክት',
+    bookmarked: 'ተመልኪቱ',
+    highlight: 'ሕብሪ',
+    removeHighlight: 'ሕብሪ የለን',
+    share: 'ኣካፍል',
+    copy: 'ቅዳሕ',
     copied: 'ተቐዲሑ',
-    shareSelected: 'ዝተመረጸ ኣካፍል',
+    note: 'መዘኻኸሪ',
+    notes: 'መዘኻኸሪታት',
+    addNote: 'መዘኻኸሪ ወስኽ',
+    editNote: 'መዘኻኸሪ ኣመሓይሽ',
+    notePlaceholder: 'ሓሳብካ ጽሓፍ…',
+    noteSaved: 'መዘኻኸሪ ተዓቂቡ',
+    noteRemoved: 'መዘኻኸሪ ተኣልዩ',
+    collections: 'እኩባት',
+    collection: 'እኩብ',
+    newCollection: 'ሓድሽ እኩብ',
+    collectionName: 'ስም እኩብ',
+    addedTo: name => `ናብ ${name} ተወሲኹ`,
+    removedFrom: name => `ካብ ${name} ተኣልዩ`,
+    relatedVerses: 'ተዛመድቲ ጥቕስታት',
+    findRelated: 'ተዛመድቲ ጥቕስታት ድለ',
+    noRelated: 'ተዛማዲ ጥቕሲ ኣይተረኽበን።',
     selectedCount: n => `${n} ተመሪጹ`,
-    highlightColor: 'ሕብሪ ብርሃን',
+    bookmarkAdded: 'ምልክት ተወሲኹ',
+    bookmarkRemoved: 'ምልክት ተኣልዩ',
+    highlighted: 'ሕብሪ ተገይሩ',
     colorGold: 'ወርቂ',
     colorRose: 'ጽጌረዳ',
     colorGreen: 'ቀጠልያ',
-    colorSky: 'ሰማያዊ'
+    colorSky: 'ሰማያዊ',
+
+    searchPlaceholder: 'ቅዱሳት መጻሕፍቲ ድለ',
+    recentSearches: 'ናይ ቀረባ',
+    suggestions: 'ፈትን ድለ',
+    results: 'ውጽኢታት',
+    resultsCount: (n, capped) => (capped ? `${n}+ ጥቕስታት` : `${n} ጥቕስታት`),
+    searching: 'ይድለ ኣሎ…',
+    noResults: 'ጥቕሲ ኣይተረኽበን',
+    noResultsHint: 'ውሑድ ቃላት ፈትን ወይ መጻረዪ ኣጽሪ።',
+    relevance: 'ምትእስሳር',
+    bibleOrder: 'ስርዓት መጽሓፍ',
+    filters: 'መጻረዪ',
+    clearFilters: 'መጻረዪ ኣጽሪ',
+    allBooks: 'ኩለን መጻሕፍቲ',
+    selectAll: 'ኩሉ ምረጽ',
+    exactPhrase: 'ልክዕ ሓረግ',
+    exactPhraseHint: 'ቃላት ብስርዓቶም ብሓባር ይድለዩ።',
+    loadMore: 'ተወሳኺ ኣርኢ',
+    inBooks: n => `${n} መጻሕፍቲ`,
+    searchHint: 'መጻሕፍቲ ምስ ወረዱ ብዘይ መርበብ ይሰርሕ።',
+
+    savedTitle: 'ዝተዓቀበ',
+    bookmarks: 'ምልክታት',
+    highlights: 'ሕብርታት',
+    noSavedYet: 'ገና ዝተዓቀበ የለን',
+    noSavedHint: 'ኣብ እተንብበሉ ዝኾነ ጥቕሲ ጠውቕ፡ ምልክት፡ ሕብሪ፡ መዘኻኸሪ ወይ ናብ እኩብ ወስኽ።',
+    noCollectionItems: 'እዚ እኩብ ባዶ እዩ።',
+    deleteCollectionConfirm: name => `“${name}” ይደምሰስ? ዝተዓቀቡ ጥቕስታት ኣብ ካልእ ዝርዝራት ይጸንሑ።`,
+    removedItem: 'ተኣልዩ',
+    defaultCollectionNames: {'prayer-focus': 'ጸሎት', 'wisdom-pearls': 'ዕንቍ ጥበብ'},
+
+    growthTitle: 'ዕብየት',
+    currentStreak: 'ሕጂ ዘሎ ተኸታታሊ',
+    bestStreak: 'ዝበለጸ ተኸታታሊ',
+    chaptersRead: 'ዝተነበቡ ምዕራፋት',
+    daysActive: 'ናይ ንባብ መዓልትታት',
+    days: n => `${n} መዓልቲ`,
+    thisWeek: 'እዚ ሰሙን',
+    weekSummary: n => `ኣብዚ ሰሙን ${n} ምዕራፋት`,
+    streakNudge: 'ተኸታታሊኻ ንምሕላው ሎሚ ሓደ ምዕራፍ ኣንብብ።',
+    streakKept: 'ሎሚ ኣንቢብካ። ይበል!',
+    plans: 'መደባት ንባብ',
+    myPlans: 'መደባተይ',
+    browsePlans: 'መደባት ርአ',
+    startPlan: 'መደብ ጀምር',
+    continuePlan: 'ቀጽል',
+    stopPlan: 'መደብ ኣቋርጽ',
+    planDay: (day, total) => `መዓልቲ ${day} ካብ ${total}`,
+    planDays: n => `${n} መዓልቲ`,
+    planComplete: 'መደብ ተዛዚሙ',
+    planStarted: 'መደብ ተጀሚሩ',
+    badges: 'ሜዳልያታት',
+    quests: 'ዕላማታት ናይዚ ሰሙን',
+    earned: 'ተረኺቡ',
+    reminder: 'ዕለታዊ መዘኻኸሪ',
+    reminderTime: 'ሰዓት',
+    reminderHint: 'ገና እንተዘየንበብካ ኣብዚ ሰዓት ይዝክረካ። መተግበሪ ክፉት ክኸውን ከሎ መልእኽቲ ይመጽእ።',
+    reminderBanner: 'ናይ ሎሚ ንባብ ግዜኡ ኣኺሉ።',
+    notificationsBlocked: 'ኣብ ቅንብራት መርበብ ሓበሬታ ተኸልኪሉ ኣሎ።',
+    resetProgress: 'ምዕባለ ንባብ ኣጽሪ',
+    resetProgressConfirm: 'ኩሉ ምዕባለ ንባብ፡ ተኸታታሊን መደባትን ይጽረ? ዝተዓቀቡ ጥቕስታት ይጸንሑ።',
+    progressReset: 'ምዕባለ ተጸሪዩ',
+    weekdayShort: ['ሰ', 'ሰ', 'ረ', 'ሓ', 'ዓ', 'ቀ', 'ሰ'],
+
+    appearance: 'ትርኢት',
+    matchSystem: 'ምስ መሳርሒ ኣሰማምዕ',
+    singleTheme: 'ሓደ ቅዲ ጥራይ',
+    theme: 'ቅዲ',
+    lightTheme: 'ብሩህ ቅዲ',
+    darkTheme: 'ጸልማት ቅዲ',
+    themeTierDark: 'ጸልማት',
+    themeTierMid: 'ማእከላይ',
+    themeTierLight: 'ብሩህ',
+    backgroundEffects: 'ናይ ድሕሪት ብርሃን',
+    backgroundEffectsHint: 'ልስሉስ ብርሃን ድሕሪ ገጻት። ኣብ ንባብ ኩሉ ግዜ ጠፊኡ።',
+    reading: 'ንባብ',
+    preview: 'ቅድመ-ርእይ',
+    appLanguage: 'ቋንቋ መተግበሪ',
+    bibleLanguage: 'ቋንቋ መጽሓፍ ቅዱስ',
+    scriptureTiOnly: 'ጽሑፍ መጽሓፍ ቅዱስ ሕጂ ብትግርኛ ጥራይ ኣሎ።',
+    appTextSize: 'ዓቐን ፊደል መተግበሪ',
+    offline: 'ብዘይ መርበብ',
+    offlinePack: 'መጽሓፍ ቅዱስ ብዘይ መርበብ',
+    offlineReady: 'ምሉእ መጽሓፍ ቅዱስ ኣብዚ መሳርሒ ኣሎ።',
+    offlinePartial: (cached, total) => `${cached} ካብ ${total} ምዕራፋት ኣብዚ መሳርሒ`,
+    offlineEmpty: 'ብዘይ መርበብ ንምንባብን ንምድላይን ሓንሳእ ኣውርድ።',
+    downloadOffline: 'መጽሓፍ ቅዱስ ኣውርድ',
+    downloadingOffline: percent => `ይወርድ ኣሎ… ${percent}%`,
+    cancelDownload: 'ሰርዝ',
+    offlineDownloadDone: 'መጽሓፍ ቅዱስ ብዘይ መርበብ ድሉው እዩ',
+    offlineDownloadFailed: 'ምውራድ ኣይተኽኣለን። ብጽኑዕ መርበብ ደጊምካ ፈትን።',
+    storageUsed: mb => `${mb} MB ተጠቒሙ`,
+    youAreOffline: 'መርበብ የለን። ዝወረዱ ምዕራፋት ይሰርሑ።',
+    backOnline: 'መርበብ ተመሊሱ',
+    updateReady: 'ሓድሽ ስሪት ድሉው እዩ።',
+    reload: 'ጽዓን',
+    installApp: 'መተግበሪ ኣእቱ',
+    installAppHint: 'ንምሉእ-ስክሪንን ብዘይ መርበብ ንባብን ናብ መበገሲ ስክሪን ወስኾ።',
+    installed: 'ኣትዩ',
+    installIosTitle: 'ናብ መበገሲ ስክሪን ወስኽ',
+    installIosStep1: 'ኣብ Safari ናይ Share መጠወቒ ጠውቕ።',
+    installIosStep2: '“Add to Home Screen” ምረጽ።',
+    installIosStep3: '“Add” ጠውቕ። መጽሓፍ ቅዱስ ከም መተግበሪ ይኽፈት።',
+    installIosIconTip: 'ኣረጊት ፊደል ምልክት ትርኢ ዲኻ? መተግበሪ ካብ መበገሲ ስክሪን ኣልግሶ፡ ኣብ Settings › Safari › Advanced › Website Data ነዚ ገጽ ደምስሶ፡ ድሕሪኡ ደጊምካ ወስኾ።',
+    installNow: 'ኣእቱ',
+    notNow: 'ሕጂ ኣይኮነን',
+    data: 'ሓበሬታ',
+    clearRecentSearches: 'ናይ ቀረባ ድለያታት ኣጽሪ',
+    about: 'ብዛዕባ',
+    privacy: 'ብሕታዊነት',
+    aboutAttribution: 'ብዛዕባን ምንጭን',
+    privacyPolicy: 'ፖሊሲ ብሕታዊነት',
+    version: 'ስሪት',
+
+    pageNotFound: 'ገጽ ኣይተረኽበን',
+    pageNotFoundBody: 'እቲ መላግቦ ቅኑዕ ኣይኮነን ወይ የለን።',
+    goBackLibrary: 'ናብ ቤተ-መጻሕፍቲ ተመለስ',
+    loading: 'ይጽዓን ኣሎ…'
 };
 
 const catalogs: Record<UiLanguage, UiStrings> = {en, ti};
 
 export const getUi = (language: UiLanguage): UiStrings => catalogs[language] ?? en;
+
+export const colorLabel = (ui: UiStrings, color: string) =>
+    color === 'rose' ? ui.colorRose : color === 'green' ? ui.colorGreen : color === 'sky' ? ui.colorSky : ui.colorGold;
+
+export const collectionDisplayName = (ui: UiStrings, collection: {id: string; name: string}) => {
+    const englishDefault = en.defaultCollectionNames[collection.id];
+    return englishDefault && collection.name === englishDefault ? ui.defaultCollectionNames[collection.id] : collection.name;
+};

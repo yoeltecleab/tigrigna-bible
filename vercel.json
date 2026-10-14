@@ -26,7 +26,13 @@
       ]
     },
     {
-      "source": "/apple-touch-icon.png",
+      "source": "/splash/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=604800" }
+      ]
+    },
+    {
+      "source": "/apple-touch-icon(.*).png",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" },
         { "key": "Content-Type", "value": "image/png" }
@@ -53,7 +59,7 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!assets/|content/|icons/|fonts/|og/|favicon\\.ico|apple-touch-icon\\.png|manifest\\.webmanifest|sw\\.js|workbox-.*\\.js|robots\\.txt|sitemap\\.xml).*)",
+      "source": "/((?!assets/|content/|icons/|splash/|fonts/|og/|favicon\\.ico|favicon-32\\.png|apple-touch-icon.*\\.png|manifest\\.webmanifest|sw\\.js|workbox-.*\\.js|robots\\.txt|sitemap\\.xml).*)",
       "destination": "/index.html"
     }
   ]

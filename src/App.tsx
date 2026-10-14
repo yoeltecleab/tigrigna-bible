@@ -1,4 +1,4 @@
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {Navigate, Route, Routes} from 'react-router-dom';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
@@ -13,17 +13,38 @@ import NotFoundPage from './pages/NotFoundPage';
 import GrowthPage from './pages/GrowthPage';
 import StudyPage from './pages/StudyPage';
 import {useSettingsStore} from './store/settingsStore';
-import {applyThemeVars, getTheme} from './themes';
+import {applyThemeVars, cacheThemeChoice, getTheme} from './themes';
+
+const darkQuery = () => window.matchMedia('(prefers-color-scheme: dark)');
+
+function usePrefersDark() {
+    const [prefersDark, setPrefersDark] = useState(() => darkQuery().matches);
+    useEffect(() => {
+        const query = darkQuery();
+        const onChange = (event: MediaQueryListEvent) => setPrefersDark(event.matches);
+        query.addEventListener('change', onChange);
+        return () => query.removeEventListener('change', onChange);
+    }, []);
+    return prefersDark;
+}
 
 export default function App() {
+    const appearance = useSettingsStore(state => state.appearance);
     const designTheme = useSettingsStore(state => state.designTheme);
+    const lightTheme = useSettingsStore(state => state.lightTheme);
+    const darkTheme = useSettingsStore(state => state.darkTheme);
     const appFontScale = useSettingsStore(state => state.appFontScale);
-    const showDecorativeCrosses = useSettingsStore(state => state.showDecorativeCrosses);
     const systemLanguage = useSettingsStore(state => state.systemLanguage);
+    const prefersDark = usePrefersDark();
+    const effectiveTheme = appearance === 'system' ? (prefersDark ? darkTheme : lightTheme) : designTheme;
 
     useEffect(() => {
-        applyThemeVars(document.documentElement, getTheme(designTheme));
-    }, [designTheme]);
+        applyThemeVars(document.documentElement, getTheme(effectiveTheme));
+    }, [effectiveTheme]);
+
+    useEffect(() => {
+        cacheThemeChoice(appearance, designTheme, lightTheme, darkTheme);
+    }, [appearance, designTheme, lightTheme, darkTheme]);
 
     useEffect(() => {
         document.documentElement.style.setProperty('--app-font-scale', String(appFontScale));
@@ -32,15 +53,6 @@ export default function App() {
     useEffect(() => {
         document.documentElement.lang = systemLanguage === 'ti' ? 'ti' : 'en';
     }, [systemLanguage]);
-
-    useEffect(() => {
-        if (showDecorativeCrosses) {
-            document.documentElement.setAttribute('data-crosses', 'on');
-            return;
-        }
-
-        document.documentElement.removeAttribute('data-crosses');
-    }, [showDecorativeCrosses]);
 
     return (
         <Routes>

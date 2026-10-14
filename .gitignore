@@ -17,6 +17,10 @@ dev-dist/
 !.vscode/extensions.json
 *.log
 
+# Generated at build time (npm run generate:data)
+public/content/*/bundles/
+*.tsbuildinfo
+
 # Local tooling
 .vercel/
 *.local

@@ -407,7 +407,7 @@ export const themes: ThemeDefinition[] = [
     })
 ];
 
-export const defaultTheme: DesignTheme = 'nebula';
+export const defaultTheme: DesignTheme = 'sand';
 
 export const themeTiers: {tier: ThemeTier; label: string}[] = [
     {tier: 'dark', label: 'Deep dark'},
@@ -429,7 +429,7 @@ const legacyThemeIds: Record<string, DesignTheme> = {
 const themeIds = new Set<string>(themes.map(t => t.id));
 
 /** Read by the pre-paint script in index.html — keep the key in sync. */
-export const THEME_CACHE_KEY = 'tb-theme-cache-v2';
+export const THEME_CACHE_KEY = 'tb-theme-cache-v3';
 
 export function isDesignTheme(id: string): id is DesignTheme {
     return themeIds.has(id);
@@ -474,24 +474,42 @@ function syncThemeColorMeta(color: string) {
     meta.content = color;
 }
 
+type ThemeCacheEntry = {id: DesignTheme; tier: ThemeTier; scheme: 'light' | 'dark'; meta: string; vars: ThemeVars};
+
+const cacheEntry = (def: ThemeDefinition): ThemeCacheEntry => ({
+    id: def.id,
+    tier: def.tier,
+    scheme: def.tier === 'light' ? 'light' : 'dark',
+    meta: toHex(def.vars['--bg']) ?? '#000000',
+    vars: def.vars
+});
+
 export function applyThemeVars(root: HTMLElement, def: ThemeDefinition): void {
+    const entry = cacheEntry(def);
     Object.entries(def.vars).forEach(([key, value]) => {
         root.style.setProperty(key, value);
     });
-    const scheme = def.tier === 'light' ? 'light' : 'dark';
     root.dataset.theme = def.id;
     root.dataset.tier = def.tier;
-    root.style.colorScheme = scheme;
+    root.style.colorScheme = entry.scheme;
+    syncThemeColorMeta(entry.meta);
+}
 
-    const metaColor = toHex(def.vars['--bg']) ?? '#000000';
-    syncThemeColorMeta(metaColor);
-
+/** Persist what the pre-paint script needs to paint the right theme before React boots. */
+export function cacheThemeChoice(appearance: Appearance, fixed: DesignTheme, light: DesignTheme, dark: DesignTheme): void {
     try {
-        localStorage.setItem(
-            THEME_CACHE_KEY,
-            JSON.stringify({id: def.id, tier: def.tier, scheme, meta: metaColor, vars: def.vars})
-        );
+        const payload =
+            appearance === 'system'
+                ? {mode: 'system', light: cacheEntry(getTheme(light)), dark: cacheEntry(getTheme(dark))}
+                : {mode: 'fixed', fixed: cacheEntry(getTheme(fixed))};
+        localStorage.setItem(THEME_CACHE_KEY, JSON.stringify(payload));
+        localStorage.removeItem('tb-theme-cache-v2');
     } catch {
         // Storage can be unavailable (private mode); pre-paint just falls back to defaults.
     }
 }
+
+export type Appearance = 'fixed' | 'system';
+
+export const lightThemes = (): ThemeDefinition[] => themes.filter(t => t.tier === 'light');
+export const darkThemes = (): ThemeDefinition[] => themes.filter(t => t.tier !== 'light');

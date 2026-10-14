@@ -2,9 +2,10 @@ import {Book, ChapterFile, SearchVerse} from '../types/bible';
 
 const tokenCache = new Map<string, string[]>();
 const booksCache = new Map<string, Promise<Book[]>>();
-const searchIndexCache = new Map<string, Promise<SearchVerse[]>>();
+const shardCache = new Map<string, Promise<SearchVerse[]>>();
 const readerIndexCache = new Map<string, Promise<SearchVerse[]>>();
 const dailyVerseCache = new Map<string, Promise<SearchVerse | null>>();
+const bookOrderCache = new Map<string, number>();
 const chapterCache = new Map<string, Promise<ChapterFile | null>>();
 
 type RawBook = {
@@ -50,49 +51,68 @@ export const loadBooks = async (language: string): Promise<Book[]> => {
     }
 
     const request = (async () => {
+        let books: Book[];
         try {
-            return await fetchJson<Book[]>(`/content/${language}/books.generated.json`);
+            books = await fetchJson<Book[]>(`/content/${language}/books.generated.json`);
         } catch {
             const [oldBooks, newBooks] = await Promise.all([
                 fetchJson<RawBook[]>(`/content/${language}/oldtestibooks.json`),
                 fetchJson<RawBook[]>(`/content/${language}/newtestibooks.json`)
             ]);
-            return toBooks(oldBooks, newBooks);
+            books = toBooks(oldBooks, newBooks);
         }
+        for (const book of books) {
+            bookOrderCache.set(book.id, book.order);
+        }
+        return books;
     })();
+    request.catch(() => booksCache.delete(language));
 
     booksCache.set(language, request);
     return request;
 };
 
-/** @deprecated Monolith search index removed; prefer search worker shards. */
-export const loadSearchIndex = async (language: string): Promise<SearchVerse[]> => {
-    const cached = searchIndexCache.get(language);
+/** Canonical book order (requires `loadBooks` to have resolved; unknown books sort last). */
+export const bookOrder = (bookId: string) => bookOrderCache.get(bookId) ?? 999;
+
+export const compareCanonical = (left: SearchVerse, right: SearchVerse) =>
+    bookOrder(left.bookId) - bookOrder(right.bookId) || left.chapter - right.chapter || left.verse - right.verse;
+
+export const loadBookShard = async (language: string, bookId: string): Promise<SearchVerse[]> => {
+    const cacheKey = `${language}:${bookId}`;
+    const cached = shardCache.get(cacheKey);
     if (cached) {
         return cached;
     }
 
-    // Fall back to reader sample index if a legacy monolith is absent.
-    const request = (async () => {
-        try {
-            return await fetchJson<SearchVerse[]>(`/content/${language}/searchIndex.generated.json`);
-        } catch {
-            return loadReaderIndex(language);
-        }
-    })();
-    searchIndexCache.set(language, request);
+    const request = fetchJson<SearchVerse[]>(`/content/${language}/search-shards/${bookId}.generated.json`).catch(() => {
+        shardCache.delete(cacheKey);
+        return [] as SearchVerse[];
+    });
+    shardCache.set(cacheKey, request);
     return request;
 };
 
-export const resolveDailyVerse = async (language: string): Promise<SearchVerse | null> => {
-    const seeded = await loadDailyVerse(language);
-    const index = await loadReaderIndex(language);
-    if (index.length === 0) {
-        return seeded;
-    }
+const localDayNumber = (date = new Date()) =>
+    Math.floor((date.getTime() - date.getTimezoneOffset() * 60_000) / 86_400_000);
 
-    const dayBucket = Math.floor(Date.now() / 86_400_000);
-    return index[dayBucket % index.length] ?? seeded;
+export const resolveDailyVerse = async (language: string): Promise<SearchVerse | null> => {
+    const cached = dailyVerseCache.get(language);
+    const request =
+        cached ??
+        (async () => {
+            try {
+                const list = await fetchJson<SearchVerse[]>(`/content/${language}/dailyVerses.generated.json`);
+                if (list.length > 0) {
+                    return list[localDayNumber() % list.length] ?? null;
+                }
+            } catch {
+                // Older deployments only ship the single seed verse.
+            }
+            return fetchJson<SearchVerse | null>(`/content/${language}/dailyVerse.generated.json`).catch(() => null);
+        })();
+    dailyVerseCache.set(language, request);
+    return request;
 };
 
 export const loadReaderIndex = async (language: string): Promise<SearchVerse[]> => {
@@ -101,19 +121,11 @@ export const loadReaderIndex = async (language: string): Promise<SearchVerse[]> 
         return cached;
     }
 
-    const request = fetchJson<SearchVerse[]>(`/content/${language}/readerIndex.generated.json`);
+    const request = fetchJson<SearchVerse[]>(`/content/${language}/readerIndex.generated.json`).catch(() => {
+        readerIndexCache.delete(language);
+        return [] as SearchVerse[];
+    });
     readerIndexCache.set(language, request);
-    return request;
-};
-
-export const loadDailyVerse = async (language: string): Promise<SearchVerse | null> => {
-    const cached = dailyVerseCache.get(language);
-    if (cached) {
-        return cached;
-    }
-
-    const request = fetchJson<SearchVerse | null>(`/content/${language}/dailyVerse.generated.json`);
-    dailyVerseCache.set(language, request);
     return request;
 };
 
@@ -129,6 +141,7 @@ export const loadChapterFile = async (language: string, bookId: string, chapter:
         try {
             return await fetchJson<ChapterFile>(filePath);
         } catch {
+            chapterCache.delete(cacheKey);
             return null;
         }
     })();

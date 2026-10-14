@@ -1,18 +1,24 @@
 import {Link} from 'react-router-dom';
 import {getUi} from '../i18n/ui';
 import {useSettingsStore} from '../store/settingsStore';
+import {EmptyState} from '../components/ui';
 
 export default function NotFoundPage() {
     const systemLanguage = useSettingsStore(state => state.systemLanguage);
     const ui = getUi(systemLanguage);
 
     return (
-        <section className="empty-state">
-            <h2>{ui.pageNotFound}</h2>
-            <p>{ui.pageNotFoundBody}</p>
-            <Link className="btn" to="/">
-                {ui.goBackLibrary}
-            </Link>
-        </section>
+        <main className="page page-standalone">
+            <EmptyState
+                icon="menu_book"
+                title={ui.pageNotFound}
+                body={ui.pageNotFoundBody}
+                action={
+                    <Link className="btn btn-filled" to="/">
+                        {ui.goBackLibrary}
+                    </Link>
+                }
+            />
+        </main>
     );
 }

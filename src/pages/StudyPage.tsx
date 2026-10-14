@@ -13,37 +13,19 @@ export default function StudyPage() {
 
     useEffect(() => {
         let cancelled = false;
-
         if (lastReading) {
             navigate(`/reader/${lastReading.bookId}/${lastReading.chapter}`, {replace: true});
             return;
         }
-
         void loadBooks(language).then(books => {
-            if (cancelled) {
-                return;
-            }
-
+            if (cancelled) return;
             const firstBook = books.find(book => book.id === 'ZEFTRET') ?? books[0];
-            if (firstBook) {
-                navigate(`/reader/${firstBook.id}/1`, {replace: true});
-            } else {
-                navigate('/', {replace: true});
-            }
+            navigate(firstBook ? `/reader/${firstBook.id}/1` : '/', {replace: true});
         });
-
         return () => {
             cancelled = true;
         };
     }, [language, lastReading, navigate]);
 
-    return (
-        <section className="stack-lg">
-            <div className="panel hero-panel">
-                <p className="eyebrow">{ui.resumeReading}</p>
-                <h2>{ui.continueReading}</h2>
-                <p className="muted">{ui.chooseChapter}</p>
-            </div>
-        </section>
-    );
+    return <p className="page-loading">{ui.loading}</p>;
 }

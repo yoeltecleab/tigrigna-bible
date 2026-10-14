@@ -1,10 +1,15 @@
 import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import {VitePWA} from 'vite-plugin-pwa';
+import {readFileSync} from 'node:fs';
 
-const ICON_VERSION = 'v5';
+const ICON_VERSION = 'v6';
+const APP_VERSION = (JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as {version: string}).version;
 
 export default defineConfig({
+    define: {
+        __APP_VERSION__: JSON.stringify(APP_VERSION)
+    },
     server: {
         host: true,
         port: 5173,
@@ -26,10 +31,7 @@ export default defineConfig({
                 'favicon-32.png',
                 'apple-touch-icon.png',
                 'icons/logo.png',
-                'icons/apple-touch-icon.png',
                 `icons/apple-touch-icon-${ICON_VERSION}.png`,
-                `icons/apple-touch-icon-167-${ICON_VERSION}.png`,
-                `icons/apple-touch-icon-152-${ICON_VERSION}.png`,
                 `icons/favicon-16-${ICON_VERSION}.png`,
                 `icons/favicon-32-${ICON_VERSION}.png`,
                 `icons/icon-192-${ICON_VERSION}.png`,
@@ -42,24 +44,24 @@ export default defineConfig({
             ],
             manifest: {
                 id: '/',
-                name: 'Tigrigna Bible',
+                name: 'Tigrigna Bible · ወንጌል ቅዱስ',
                 short_name: 'Bible',
-                description: 'Offline-capable Tigrigna Bible reader and search experience.',
-                theme_color: '#000002',
-                background_color: '#000002',
+                description: 'Read, search and save the Tigrigna Bible — fully offline.',
+                theme_color: '#fbf7e8',
+                background_color: '#fbf7e8',
                 display: 'standalone',
                 orientation: 'any',
-                start_url: '/',
+                start_url: '/?source=pwa',
                 scope: '/',
                 lang: 'ti',
                 dir: 'ltr',
+                categories: ['books', 'education', 'lifestyle'],
+                shortcuts: [
+                    {name: 'Continue reading', short_name: 'Read', url: '/study'},
+                    {name: 'Search', short_name: 'Search', url: '/search'},
+                    {name: 'Saved verses', short_name: 'Saved', url: '/journey'}
+                ],
                 icons: [
-                    {
-                        src: `/icons/logo.png`,
-                        sizes: '512x512',
-                        type: 'image/png',
-                        purpose: 'any'
-                    },
                     {
                         src: `/icons/icon-192-${ICON_VERSION}.png`,
                         sizes: '192x192',
@@ -95,11 +97,12 @@ export default defineConfig({
                 navigateFallbackDenylist: [
                     /^\/content\//,
                     /^\/icons\//,
+                    /^\/splash\//,
                     /^\/fonts\//,
                     /^\/og\//,
                     /^\/assets\//,
                     /^\/favicon\.ico$/,
-                    /^\/apple-touch-icon\.png$/,
+                    /^\/apple-touch-icon.*\.png$/,
                     /^\/manifest\.webmanifest$/,
                     /^\/sw\.js$/,
                     /^\/robots\.txt$/,
@@ -107,7 +110,7 @@ export default defineConfig({
                 ],
                 // App shell only — do not precache Bible JSON.
                 globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,ttf,woff2}'],
-                globIgnores: ['**/content/**', '**/og/**', '**/icons/logo-source.png'],
+                globIgnores: ['**/content/**', '**/og/**', '**/splash/**', '**/icons/logo-source.png'],
                 runtimeCaching: [
                     {
                         urlPattern: ({request}) => request.destination === 'document',
@@ -117,7 +120,7 @@ export default defineConfig({
                         }
                     },
                     {
-                        urlPattern: ({url}) => url.pathname.startsWith('/content/'),
+                        urlPattern: ({url}) => url.pathname.startsWith('/content/') && !url.pathname.includes('/bundles/'),
                         handler: 'CacheFirst',
                         options: {
                             cacheName: 'bible-content-cache',

@@ -1,146 +1,159 @@
-import {Link} from 'react-router-dom';
+import {useState, type CSSProperties} from 'react';
 import OfflinePackPanel from '../components/OfflinePackPanel';
-import ThemePicker from '../components/ThemePicker';
+import ReminderRows from '../components/ReminderRows';
+import ThemeSheet from '../components/ThemeSheet';
+import InstallSheet from '../components/InstallSheet';
+import {ReadingControls} from '../components/reader/ReadingOptionsSheet';
+import {ListGroup, ListRow, PageHeader, Segmented, Switch} from '../components/ui';
 import {useSettingsStore} from '../store/settingsStore';
+import {useProgressStore} from '../store/progressStore';
+import {useInstallStore} from '../store/installStore';
+import {toast} from '../store/uiStore';
+import {getTheme} from '../themes';
 import {getUi} from '../i18n/ui';
 
+const APP_SIZE_STEPS = [0.9, 1, 1.1, 1.2, 1.3];
+
 export default function SettingsPage() {
-    const systemLanguage = useSettingsStore(state => state.systemLanguage);
-    const fontScale = useSettingsStore(state => state.fontScale);
-    const appFontScale = useSettingsStore(state => state.appFontScale);
-    const designTheme = useSettingsStore(state => state.designTheme);
-    const showDecorativeCrosses = useSettingsStore(state => state.showDecorativeCrosses);
-    const setSystemLanguage = useSettingsStore(state => state.setSystemLanguage);
-    const setFontScale = useSettingsStore(state => state.setFontScale);
-    const setAppFontScale = useSettingsStore(state => state.setAppFontScale);
-    const syncFontScales = useSettingsStore(state => state.syncFontScales);
-    const setDesignTheme = useSettingsStore(state => state.setDesignTheme);
-    const setShowDecorativeCrosses = useSettingsStore(state => state.setShowDecorativeCrosses);
-    const recentSearches = useSettingsStore(state => state.recentSearches);
-    const clearRecentSearches = useSettingsStore(state => state.clearRecentSearches);
-    const ui = getUi(systemLanguage);
+    const settings = useSettingsStore();
+    const resetProgress = useProgressStore(state => state.resetProgress);
+    const isStandalone = useInstallStore(state => state.isStandalone);
+    const ui = getUi(settings.systemLanguage);
+    const [themeOpen, setThemeOpen] = useState(false);
+    const [installOpen, setInstallOpen] = useState(false);
+
+    const themeValue =
+        settings.appearance === 'system'
+            ? `${getTheme(settings.lightTheme).label} / ${getTheme(settings.darkTheme).label}`
+            : getTheme(settings.designTheme).label;
+    const appSize = APP_SIZE_STEPS.reduce((best, value) => (Math.abs(value - settings.appFontScale) < Math.abs(best - settings.appFontScale) ? value : best));
 
     return (
-        <section className="stack-lg">
-            <div className="panel hero-panel stack-sm">
-                <p className="eyebrow">{ui.settings}</p>
-                <h3>{ui.readingPreferences}</h3>
+        <section className="page settings-page">
+            <PageHeader title={ui.settings} />
 
-                <label className="stack-xs">
-                    <span>{ui.bibleLanguage}</span>
-                    <select className="input" value="ti" disabled aria-describedby="bible-language-help">
-                        <option value="ti">Tigrigna</option>
-                    </select>
-                    <span id="bible-language-help" className="muted">
-                        {ui.scriptureTiOnly}
-                    </span>
-                </label>
-
-                <label className="stack-xs">
-                    <span>{ui.systemLanguage}</span>
-                    <select
-                        className="input"
-                        value={systemLanguage}
-                        onChange={event => setSystemLanguage(event.target.value as 'ti' | 'en')}
-                    >
-                        <option value="en">English</option>
-                        <option value="ti">ትግርኛ</option>
-                    </select>
-                </label>
-
-                <label className="stack-xs">
-                    <span>
-                        {ui.bibleFontScale} ({fontScale.toFixed(1)}x)
-                    </span>
-                    <input
-                        type="range"
-                        className="input"
-                        min={0.8}
-                        max={1.5}
-                        step={0.1}
-                        value={fontScale}
-                        onChange={event => setFontScale(Number(event.target.value))}
-                    />
-                </label>
-
-                <label className="stack-xs">
-                    <span>
-                        {ui.appFontScale} ({appFontScale.toFixed(1)}x)
-                    </span>
-                    <input
-                        type="range"
-                        className="input"
-                        min={0.85}
-                        max={1.35}
-                        step={0.05}
-                        value={appFontScale}
-                        onChange={event => setAppFontScale(Number(event.target.value))}
-                    />
-                </label>
-
-                <div className="row gap-sm wrap">
-                    <button className="btn" type="button" onClick={syncFontScales}>
-                        {ui.matchSizes}
-                    </button>
-                    <label className="toggle-row" htmlFor="decorative-crosses-toggle">
-                        <span>{ui.showCrossMotifs}</span>
-                        <button
-                            id="decorative-crosses-toggle"
-                            type="button"
-                            className={showDecorativeCrosses ? 'toggle-switch toggle-switch-on' : 'toggle-switch'}
-                            onClick={() => setShowDecorativeCrosses(!showDecorativeCrosses)}
-                            aria-pressed={showDecorativeCrosses}
-                        >
-                            <span />
-                        </button>
-                    </label>
-                </div>
-
-                <div className="stack-xs">
-                    <div className="section-header">
-                        <span>{ui.recentSearches}</span>
-                        {recentSearches.length > 0 ? (
-                            <button className="link-btn" type="button" onClick={clearRecentSearches}>
-                                {ui.clear}
-                            </button>
-                        ) : null}
-                    </div>
-                    {recentSearches.length > 0 ? (
-                        <p className="muted">{recentSearches.slice(0, 5).join(' • ')}</p>
-                    ) : (
-                        <p className="muted">—</p>
-                    )}
-                </div>
-            </div>
-
-            <div className="panel stack-md" id="visual-mode">
-                <div>
-                    <p className="eyebrow">{ui.themeDrawerSubtitle}</p>
-                    <h3>{ui.designTheme}</h3>
-                </div>
-                <ThemePicker
-                    value={designTheme}
-                    onChange={setDesignTheme}
-                    label={ui.designTheme}
-                    tierLabels={{dark: ui.themeTierDark, mid: ui.themeTierMid, light: ui.themeTierLight}}
+            <ListGroup header={ui.appearance} footer={ui.backgroundEffectsHint}>
+                <ListRow
+                    icon="palette"
+                    iconTone="purple"
+                    title={ui.theme}
+                    detail={settings.appearance === 'system' ? ui.matchSystem : undefined}
+                    value={themeValue}
+                    onClick={() => setThemeOpen(true)}
+                    chevron
                 />
-            </div>
+                <ListRow
+                    icon="sparkles"
+                    iconTone="indigo"
+                    title={ui.backgroundEffects}
+                    accessory={<Switch checked={settings.ambientEffects} onChange={settings.setAmbientEffects} label={ui.backgroundEffects} />}
+                />
+            </ListGroup>
 
-            <div className="panel stack-sm">
-                <OfflinePackPanel />
-            </div>
-
-            <div className="panel stack-sm">
-                <h3>{ui.legal}</h3>
-                <div className="row gap-sm wrap">
-                    <Link className="btn" to="/about">
-                        {ui.aboutAttribution}
-                    </Link>
-                    <Link className="btn" to="/privacy">
-                        {ui.privacyPolicy}
-                    </Link>
+            <section className="list-group">
+                <h2 className="list-group-header">{ui.reading}</h2>
+                <div
+                    className={`card reading-preview reader-font-${settings.readerFont}`}
+                    style={{'--reader-size': `calc(17px * ${settings.fontScale})`, '--reader-leading': settings.lineHeightScale} as CSSProperties}
+                    lang="ti"
+                >
+                    <span className="reading-preview-label">{ui.preview}</span>
+                    <p className="reading-preview-text">
+                        {settings.showVerseNumbers ? <sup className="verse-sup">16</sup> : null}
+                        “በቲ ሓደ ወዱ ዝኣመነ ዘበለ ዅሉ ናይ ዘለዓለም ሕይወት ምእንቲ ኺረክብ እምበር ከይጠፍእሲ፥ ኣምላኽ ንወዱ በጃ ኽሳዕ ዚህብ ክሳዕ ክንድዚ ንዓለም ኣፍቀራ።
+                    </p>
                 </div>
-            </div>
+                <div className="options-stack">
+                    <ReadingControls ui={ui} />
+                </div>
+            </section>
+
+            <ListGroup header={ui.appLanguage} footer={ui.scriptureTiOnly}>
+                <div className="list-row">
+                    <span className="row-icon row-icon-blue" aria-hidden="true">
+                        <span className="row-icon-glyph">ሀ</span>
+                    </span>
+                    <span className="row-copy">
+                        <span className="row-title">{ui.appLanguage}</span>
+                    </span>
+                    <Segmented
+                        value={settings.systemLanguage}
+                        onChange={settings.setSystemLanguage}
+                        label={ui.appLanguage}
+                        options={[
+                            {value: 'en', label: 'English'},
+                            {value: 'ti', label: 'ትግርኛ'}
+                        ]}
+                    />
+                </div>
+                <ListRow icon="menu_book" iconTone="brown" title={ui.bibleLanguage} value="ትግርኛ" />
+                <div className="list-row">
+                    <span className="row-icon row-icon-gray" aria-hidden="true">
+                        <span className="row-icon-glyph">Aa</span>
+                    </span>
+                    <span className="row-copy">
+                        <span className="row-title">{ui.appTextSize}</span>
+                    </span>
+                    <Segmented
+                        value={String(appSize)}
+                        onChange={value => settings.setAppFontScale(Number(value))}
+                        label={ui.appTextSize}
+                        options={APP_SIZE_STEPS.map((value, index) => ({
+                            value: String(value),
+                            label: <span style={{fontSize: `${0.72 + index * 0.08}rem`}}>A</span>
+                        }))}
+                    />
+                </div>
+            </ListGroup>
+
+            <ReminderRows />
+
+            <OfflinePackPanel />
+
+            <ListGroup footer={isStandalone ? undefined : ui.installAppHint}>
+                <ListRow
+                    icon="add_home"
+                    iconTone="green"
+                    title={ui.installApp}
+                    value={isStandalone ? ui.installed : undefined}
+                    onClick={() => setInstallOpen(true)}
+                    chevron
+                />
+            </ListGroup>
+
+            <ListGroup header={ui.data}>
+                <ListRow
+                    icon="history"
+                    iconTone="gray"
+                    title={ui.clearRecentSearches}
+                    value={settings.recentSearches.length || undefined}
+                    onClick={() => {
+                        settings.clearRecentSearches();
+                        toast(ui.clear);
+                    }}
+                />
+                <ListRow
+                    icon="refresh"
+                    iconTone="red"
+                    title={ui.resetProgress}
+                    destructive
+                    onClick={() => {
+                        if (window.confirm(ui.resetProgressConfirm)) {
+                            resetProgress();
+                            toast(ui.progressReset);
+                        }
+                    }}
+                />
+            </ListGroup>
+
+            <ListGroup header={ui.about}>
+                <ListRow icon="info" iconTone="blue" title={ui.aboutAttribution} to="/about" />
+                <ListRow icon="shield" iconTone="green" title={ui.privacyPolicy} to="/privacy" />
+                <ListRow icon="church" iconTone="brown" title={ui.version} value={__APP_VERSION__} />
+            </ListGroup>
+
+            <ThemeSheet open={themeOpen} onClose={() => setThemeOpen(false)} />
+            <InstallSheet open={installOpen} onClose={() => setInstallOpen(false)} />
         </section>
     );
 }

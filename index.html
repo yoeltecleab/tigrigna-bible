@@ -1,23 +1,27 @@
 <!doctype html>
-<html lang="ti" data-theme="nebula" data-tier="dark">
+<html lang="ti" data-theme="sand" data-tier="light">
     <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
         <title>Tigrigna Bible · ወንጌል ቅዱስ</title>
-        <meta name="description" content="Read, search, and save the Tigrigna Bible offline. Installable Progressive Web App with chapter reading, bookmarks, and fast search."/>
-        <meta name="theme-color" content="#000002"/>
-        <meta name="color-scheme" content="dark light"/>
+        <meta name="description" content="Read, search, and save the Tigrigna Bible offline. Installable app with focused reading, highlights, notes, reading plans and fast search."/>
+        <meta name="theme-color" content="#f7e9d6"/>
+        <meta name="color-scheme" content="light dark"/>
         <script>
             (function () {
                 try {
-                    var cached = JSON.parse(localStorage.getItem('tb-theme-cache-v2') || 'null');
-                    if (!cached || !cached.vars) return;
+                    var cache = JSON.parse(localStorage.getItem('tb-theme-cache-v3') || 'null');
+                    if (!cache) return;
+                    var entry = cache.mode === 'system'
+                        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? cache.dark : cache.light)
+                        : cache.fixed;
+                    if (!entry || !entry.vars) return;
                     var root = document.documentElement;
-                    for (var key in cached.vars) root.style.setProperty(key, cached.vars[key]);
-                    root.dataset.theme = cached.id;
-                    root.dataset.tier = cached.tier;
-                    root.style.colorScheme = cached.scheme;
-                    if (cached.meta) document.querySelector('meta[name="theme-color"]').content = cached.meta;
+                    for (var key in entry.vars) root.style.setProperty(key, entry.vars[key]);
+                    root.dataset.theme = entry.id;
+                    root.dataset.tier = entry.tier;
+                    root.style.colorScheme = entry.scheme;
+                    if (entry.meta) document.querySelector('meta[name="theme-color"]').content = entry.meta;
                 } catch (e) {}
             })();
         </script>
@@ -26,6 +30,7 @@
         <meta name="apple-mobile-web-app-capable" content="yes"/>
         <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
         <meta name="apple-mobile-web-app-title" content="Bible"/>
+        <meta name="format-detection" content="telephone=no"/>
         <link rel="canonical" href="https://tigrigna-bible.vercel.app/"/>
 
         <meta property="og:type" content="website"/>
@@ -41,15 +46,32 @@
         <meta name="twitter:description" content="Read, search, and save the Tigrigna Bible offline."/>
         <meta name="twitter:image" content="https://tigrigna-bible.vercel.app/icons/logo.png"/>
 
-        <link rel="icon" href="/favicon.ico" sizes="any"/>
-        <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32-v5.png"/>
-        <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16-v5.png"/>
-        <link rel="icon" type="image/png" sizes="512x512" href="/icons/logo.png"/>
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-        <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon-v5.png"/>
-        <link rel="apple-touch-icon" sizes="167x167" href="/icons/apple-touch-icon-167-v5.png"/>
-        <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-touch-icon-152-v5.png"/>
-        <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192-v5.png"/>
+        <link rel="icon" href="/favicon.ico" sizes="48x48"/>
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32-v6.png"/>
+        <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16-v6.png"/>
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon-v6.png"/>
+        <!-- splash:start -->
+        <link rel="apple-touch-startup-image" href="/splash/splash-1320x2868.png" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-1206x2622.png" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-1179x2556.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-1242x2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-640x1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-2064x2752.png" media="(device-width: 1032px) and (device-height: 1376px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-2048x2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-1668x2420.png" media="(device-width: 834px) and (device-height: 1210px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-1668x2388.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-1640x2360.png" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-1668x2224.png" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-1620x2160.png" media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-1536x2048.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
+        <link rel="apple-touch-startup-image" href="/splash/splash-1488x2266.png" media="(device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
+        <!-- splash:end -->
     </head>
     <body>
         <div id="root"></div>

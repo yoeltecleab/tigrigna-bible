@@ -5,47 +5,42 @@ export type HighlightColor = 'gold' | 'rose' | 'green' | 'sky';
 
 export const HIGHLIGHT_COLORS: HighlightColor[] = ['gold', 'rose', 'green', 'sky'];
 
-type SavedVerse = {
+/** `verse` is the first printed verse number; `label` is the printed label (e.g. `14-15`). */
+export type VersePayload = {
     key: string;
     bookId: string;
     chapter: number;
     verse: number;
+    label?: string;
     text: string;
+};
+
+export type SavedVerse = VersePayload & {
     createdAt: string;
     kind: 'bookmark' | 'highlight';
     color?: HighlightColor;
 };
 
-type Collection = {
+export type Collection = {
     id: string;
     name: string;
     color: string;
 };
 
-type CollectionItem = {
+export type CollectionItem = VersePayload & {
     id: string;
     collectionId: string;
-    key: string;
-    bookId: string;
-    chapter: number;
-    verse: number;
-    text: string;
     createdAt: string;
 };
 
-type VerseNote = {
+export type VerseNote = VersePayload & {
     id: string;
-    key: string;
-    bookId: string;
-    chapter: number;
-    verse: number;
-    text: string;
     note: string;
     createdAt: string;
     updatedAt: string;
 };
 
-type VersePayload = Omit<SavedVerse, 'createdAt' | 'kind' | 'color'>;
+export const DEFAULT_COLLECTION_IDS = ['prayer-focus', 'wisdom-pearls'] as const;
 
 type SavedState = {
     verses: SavedVerse[];
@@ -53,8 +48,13 @@ type SavedState = {
     collectionItems: CollectionItem[];
     notes: VerseNote[];
     toggleBookmark: (verse: VersePayload) => void;
+    setBookmarked: (verse: VersePayload, bookmarked: boolean) => void;
     toggleHighlight: (verse: VersePayload, color?: HighlightColor) => void;
     setHighlightColor: (verse: VersePayload, color: HighlightColor) => void;
+    removeHighlight: (key: string) => void;
+    removeSavedVerse: (key: string, kind: SavedVerse['kind']) => void;
+    renameCollection: (collectionId: string, name: string) => void;
+    deleteCollection: (collectionId: string) => void;
     createCollection: (name: string) => string;
     addToCollection: (collectionId: string, verse: Omit<CollectionItem, 'id' | 'collectionId' | 'createdAt'>) => void;
     removeFromCollection: (collectionId: string, key: string) => void;
@@ -97,6 +97,30 @@ export const useSavedStore = create<SavedState>()(
                         ]
                     };
                 }),
+            setBookmarked: (verse, bookmarked) =>
+                set(state => {
+                    const without = state.verses.filter(item => !(item.key === verse.key && item.kind === 'bookmark'));
+                    return {
+                        verses: bookmarked
+                            ? [{...verse, createdAt: new Date().toISOString(), kind: 'bookmark'}, ...without]
+                            : without
+                    };
+                }),
+            removeHighlight: key =>
+                set(state => ({verses: state.verses.filter(item => !(item.key === key && item.kind === 'highlight'))})),
+            removeSavedVerse: (key, kind) =>
+                set(state => ({verses: state.verses.filter(item => !(item.key === key && item.kind === kind))})),
+            renameCollection: (collectionId, name) =>
+                set(state => ({
+                    collections: state.collections.map(item =>
+                        item.id === collectionId && name.trim() ? {...item, name: name.trim()} : item
+                    )
+                })),
+            deleteCollection: collectionId =>
+                set(state => ({
+                    collections: state.collections.filter(item => item.id !== collectionId),
+                    collectionItems: state.collectionItems.filter(item => item.collectionId !== collectionId)
+                })),
             toggleHighlight: (verse, color = 'gold') =>
                 set(state => {
                     const existing = state.verses.find(item => item.key === verse.key && item.kind === 'highlight');
@@ -109,7 +133,7 @@ export const useSavedStore = create<SavedState>()(
                         return {
                             verses: state.verses.map(item =>
                                 item.key === verse.key && item.kind === 'highlight'
-                                    ? {...item, color, text: verse.text}
+                                    ? {...item, ...verse, color}
                                     : item
                             )
                         };
