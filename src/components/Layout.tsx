@@ -1,7 +1,8 @@
 import {Link, NavLink, Outlet, useLocation} from 'react-router-dom';
-import {useEffect, useState} from 'react';
+import {useEffect, useLayoutEffect, useState} from 'react';
 import InstallPrompt from './InstallPrompt';
 import AmbientScene from './AmbientScene';
+import ThemeDrawer from './ThemeDrawer';
 import Icon from './Icon';
 import {useSettingsStore} from '../store/settingsStore';
 import {getUi} from '../i18n/ui';
@@ -37,14 +38,20 @@ export default function Layout() {
                     : activeItem?.to === '/search'
                         ? 'search'
                         : 'library';
+    const pageSubtitles: Array<[string, string]> = [
+        ['/settings', ui.settings],
+        ['/about', ui.about],
+        ['/privacy', ui.privacy]
+    ];
     const routeSubtitle =
-        routeKey === 'library'
+        pageSubtitles.find(([prefix]) => location.pathname.startsWith(prefix))?.[1] ??
+        (routeKey === 'library'
             ? ui.theWord
             : routeKey === 'journey'
                 ? ui.savedVerses
                 : routeKey === 'growth'
                     ? ui.soulProgress
-                    : ui.searchScriptures;
+                    : ui.searchScriptures);
 
     useEffect(() => {
         const onConnectivity = (event: Event) => {
@@ -62,6 +69,10 @@ export default function Layout() {
             window.removeEventListener('tb-sw-update', onUpdate);
         };
     }, []);
+
+    useLayoutEffect(() => {
+        window.scrollTo({top: 0, left: 0, behavior: 'instant'});
+    }, [location.pathname]);
 
     useEffect(() => {
         let cancelled = false;
@@ -114,6 +125,7 @@ export default function Layout() {
                             {ui.reloadToUpdate}
                         </button>
                     ) : null}
+                    <ThemeDrawer />
                     <Link className="icon-button mobile-settings" to="/settings" aria-label={ui.settings}>
                         <Icon name="settings" size={20} />
                     </Link>
@@ -136,10 +148,14 @@ export default function Layout() {
                             <span className="rail-label">{item.label}</span>
                         </NavLink>
                     ))}
-                    <Link className="rail-item rail-settings" to="/settings" aria-label={ui.settings}>
+                    <NavLink
+                        className={({isActive}) => (isActive ? 'rail-item rail-settings active' : 'rail-item rail-settings')}
+                        to="/settings"
+                        aria-label={ui.settings}
+                    >
                         <Icon name="settings" size={20} />
                         <span className="rail-label">{ui.settings}</span>
-                    </Link>
+                    </NavLink>
                 </aside>
 
                 <main className="content">

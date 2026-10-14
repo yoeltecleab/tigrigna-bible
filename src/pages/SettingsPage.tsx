@@ -48,20 +48,6 @@ export default function SettingsPage() {
                     </select>
                 </label>
 
-                <div className="stack-xs">
-                    <span>{ui.designTheme}</span>
-                    <ThemePicker
-                        value={designTheme}
-                        onChange={setDesignTheme}
-                        tierLabels={{
-                            bible: ui.themeTierBible,
-                            dark: ui.themeTierDark,
-                            mid: ui.themeTierMid,
-                            light: ui.themeTierLight
-                        }}
-                    />
-                </div>
-
                 <label className="stack-xs">
                     <span>
                         {ui.bibleFontScale} ({fontScale.toFixed(1)}x)
@@ -125,6 +111,19 @@ export default function SettingsPage() {
                         <p className="muted">—</p>
                     )}
                 </div>
+            </div>
+
+            <div className="panel stack-md" id="visual-mode">
+                <div>
+                    <p className="eyebrow">{ui.themeDrawerSubtitle}</p>
+                    <h3>{ui.designTheme}</h3>
+                </div>
+                <ThemePicker
+                    value={designTheme}
+                    onChange={setDesignTheme}
+                    label={ui.designTheme}
+                    tierLabels={{dark: ui.themeTierDark, mid: ui.themeTierMid, light: ui.themeTierLight}}
+                />
             </div>
 
             <div className="panel stack-sm">

@@ -1,6 +1,6 @@
 import {create} from 'zustand';
 import {persist} from 'zustand/middleware';
-import {normalizeThemeId, type DesignTheme} from '../themes';
+import {defaultTheme, normalizeThemeId, type DesignTheme} from '../themes';
 
 type UiLanguage = 'ti' | 'en';
 
@@ -49,7 +49,7 @@ export const useSettingsStore = create<SettingsState>()(
             fontScale: 1,
             appFontScale: 1,
             lineHeightScale: 1.75,
-            designTheme: 'sacred-covenant',
+            designTheme: defaultTheme,
             showDecorativeCrosses: true,
             searchExactPhrase: false,
             searchCaseSensitive: false,

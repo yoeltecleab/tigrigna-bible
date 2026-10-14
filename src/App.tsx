@@ -22,10 +22,7 @@ export default function App() {
     const systemLanguage = useSettingsStore(state => state.systemLanguage);
 
     useEffect(() => {
-        const theme = getTheme(designTheme);
-        applyThemeVars(document.documentElement, theme);
-        document.body.setAttribute('data-theme', theme.id);
-        document.body.dataset.tier = theme.tier;
+        applyThemeVars(document.documentElement, getTheme(designTheme));
     }, [designTheme]);
 
     useEffect(() => {

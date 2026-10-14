@@ -75,7 +75,10 @@ type UiStrings = {
     bibleLanguage: string;
     systemLanguage: string;
     designTheme: string;
-    themeTierBible: string;
+    themeDrawerSubtitle: string;
+    openThemes: string;
+    moreSettings: string;
+    close: string;
     themeTierDark: string;
     themeTierMid: string;
     themeTierLight: string;
@@ -210,7 +213,10 @@ const en: UiStrings = {
     bibleLanguage: 'Bible language',
     systemLanguage: 'System language',
     designTheme: 'Visual mode',
-    themeTierBible: 'Bible',
+    themeDrawerSubtitle: 'Visual systems',
+    openThemes: 'Change visual mode',
+    moreSettings: 'All settings',
+    close: 'Close',
     themeTierDark: 'Deep dark',
     themeTierMid: 'Balanced',
     themeTierLight: 'Light',
@@ -346,7 +352,10 @@ const ti: UiStrings = {
     bibleLanguage: 'ቋንቋ መጽሓፍ ቅዱስ',
     systemLanguage: 'ቋንቋ ስርዓት',
     designTheme: 'ቅርጺ ምርኢት',
-    themeTierBible: 'መጽሓፍ ቅዱስ',
+    themeDrawerSubtitle: 'ስርዓታት ምርኢት',
+    openThemes: 'ቅርጺ ምርኢት ቀይር',
+    moreSettings: 'ኩሉ ቅንብራት',
+    close: 'ዕጸው',
     themeTierDark: 'ጸሊም',
     themeTierMid: 'ማእከላይ',
     themeTierLight: 'ብርሃን',

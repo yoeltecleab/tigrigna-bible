@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
+import {createPortal} from 'react-dom';
 import {Link, useLocation, useNavigate, useParams, useSearchParams} from 'react-router-dom';
 import {
     buildRelatedQuery,
@@ -948,7 +949,7 @@ export default function ReaderPage() {
                 </button>
             </div>
 
-            {selectedVerse ? (
+            {selectedVerse ? createPortal(
                 <div
                     className="verse-modal-backdrop"
                     role="dialog"
@@ -1090,7 +1091,8 @@ export default function ReaderPage() {
                             </p>
                         ) : null}
                     </div>
-                </div>
+                </div>,
+                document.body
             ) : null}
         </section>
     );

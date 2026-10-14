@@ -8,6 +8,7 @@ import './styles.css';
 import './pwa';
 
 import '@fontsource-variable/manrope/index.css';
+import '@fontsource-variable/jetbrains-mono/index.css';
 import '@fontsource/space-grotesk/400.css';
 import '@fontsource/space-grotesk/500.css';
 import '@fontsource/space-grotesk/600.css';

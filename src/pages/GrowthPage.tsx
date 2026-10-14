@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useState, type CSSProperties} from 'react';
 import {Link} from 'react-router-dom';
 import {loadBooks} from '../data/api';
 import {Book} from '../types/bible';
@@ -54,9 +54,7 @@ export default function GrowthPage() {
                 </p>
                 <div
                     className="journey-level-ring"
-                    style={{
-                        background: `radial-gradient(circle at center, color-mix(in oklch, var(--surface) 92%, transparent) 55%, transparent 56%), conic-gradient(var(--primary) 0 ${snapshot.soulProgressPercent * 3.6}deg, color-mix(in oklch, var(--border) 70%, transparent) ${snapshot.soulProgressPercent * 3.6}deg)`
-                    }}
+                    style={{'--ring-progress': `${snapshot.soulProgressPercent * 3.6}deg`} as CSSProperties}
                 >
                     <div>
                         <strong className="journey-big-number">{snapshot.soulProgressPercent}%</strong>

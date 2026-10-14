@@ -1,5 +1,7 @@
 import {
     BookOpen,
+    Check,
+    Palette,
     ChevronLeft,
     ChevronRight,
     Church,
@@ -44,7 +46,9 @@ const icons = {
     church: Church,
     lock: Lock,
     menu: Menu,
-    sparkles: Sparkles
+    sparkles: Sparkles,
+    palette: Palette,
+    check: Check
 } as const;
 
 export type IconName = keyof typeof icons;

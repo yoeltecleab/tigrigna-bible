@@ -1,12 +1,26 @@
 <!doctype html>
-<html lang="ti">
+<html lang="ti" data-theme="nebula" data-tier="dark">
     <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
         <title>Tigrigna Bible · ወንጌል ቅዱስ</title>
         <meta name="description" content="Read, search, and save the Tigrigna Bible offline. Installable Progressive Web App with chapter reading, bookmarks, and fast search."/>
-        <meta name="theme-color" content="#fbf7e8" media="(prefers-color-scheme: light)"/>
-        <meta name="theme-color" content="#fbf7e8"/>
+        <meta name="theme-color" content="#000002"/>
+        <meta name="color-scheme" content="dark light"/>
+        <script>
+            (function () {
+                try {
+                    var cached = JSON.parse(localStorage.getItem('tb-theme-cache-v2') || 'null');
+                    if (!cached || !cached.vars) return;
+                    var root = document.documentElement;
+                    for (var key in cached.vars) root.style.setProperty(key, cached.vars[key]);
+                    root.dataset.theme = cached.id;
+                    root.dataset.tier = cached.tier;
+                    root.style.colorScheme = cached.scheme;
+                    if (cached.meta) document.querySelector('meta[name="theme-color"]').content = cached.meta;
+                } catch (e) {}
+            })();
+        </script>
         <meta name="application-name" content="Tigrigna Bible"/>
         <meta name="mobile-web-app-capable" content="yes"/>
         <meta name="apple-mobile-web-app-capable" content="yes"/>
